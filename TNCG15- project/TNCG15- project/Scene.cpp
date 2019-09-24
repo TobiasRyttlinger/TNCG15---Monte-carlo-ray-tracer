@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 #include "Scene.h"
 #include "Triangle.h"
@@ -52,3 +53,16 @@ void Scene::createScene() {
 
 
 }
+=======
+//
+//  Scene.cpp
+//  TNCG15- project
+//
+//  Created by Tim Cardell on 2019-09-24.
+//  Copyright © 2019 Tim Cardell. All rights reserved.
+//
+//#include </Users/timcardell/Downloads/glm/glm/vec3.hpp>
+#include "Scene.hpp"
+
+
+>>>>>>> Stashed changes
