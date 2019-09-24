@@ -18,7 +18,7 @@ class List
 public:
 
     //Default constructor
-    List();
+    List(); //Hej
 
     //Destructor
     ~List();
