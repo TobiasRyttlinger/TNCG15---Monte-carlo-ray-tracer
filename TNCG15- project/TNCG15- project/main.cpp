@@ -1,9 +1,6 @@
 #include <iostream>
-#include </Users/timcardell/Downloads/glm/glm/vec3.hpp>
-//#include <glm/vec3.hpp>
+#include <vector>
+int main() {
 
-
-int main()
-{
-    std::cout << "hello"<< std::endl;
+	return 0;
 }
