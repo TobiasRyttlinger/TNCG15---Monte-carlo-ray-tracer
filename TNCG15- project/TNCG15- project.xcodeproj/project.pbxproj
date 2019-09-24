@@ -15,6 +15,7 @@
 		8B3CCAFF233A17730047507A /* glew.h in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3CCAFC233A17730047507A /* glew.h */; };
 		8B3CCB00233A17730047507A /* wglew.h in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3CCAFD233A17730047507A /* wglew.h */; };
 		8B3CCB02233A17B80047507A /* glm in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3CCB01233A17B80047507A /* glm */; };
+		8B3CCB05233A71290047507A /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B3CCB03233A71290047507A /* Scene.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,8 @@
 		8B3CCAFC233A17730047507A /* glew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../../../../../../usr/local/Cellar/glew/2.1.0/include/GL/glew.h; sourceTree = "<group>"; };
 		8B3CCAFD233A17730047507A /* wglew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wglew.h; path = ../../../../../../usr/local/Cellar/glew/2.1.0/include/GL/wglew.h; sourceTree = "<group>"; };
 		8B3CCB01233A17B80047507A /* glm */ = {isa = PBXFileReference; lastKnownFileType = folder; name = glm; path = ../../../../Downloads/glm; sourceTree = "<group>"; };
+		8B3CCB03233A71290047507A /* Scene.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		8B3CCB04233A71290047507A /* Scene.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Scene.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 			isa = PBXGroup;
 			children = (
 				8B3CCAED233A11D40047507A /* main.cpp */,
+				8B3CCB03233A71290047507A /* Scene.cpp */,
+				8B3CCB04233A71290047507A /* Scene.hpp */,
 			);
 			path = "TNCG15- project";
 			sourceTree = "<group>";
@@ -154,6 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B3CCB05233A71290047507A /* Scene.cpp in Sources */,
 				8B3CCAEE233A11D40047507A /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
