@@ -4,18 +4,18 @@
 #include "Triangle.h"
 #include "Vertex.h"
 #include "Camera.h"
+#include "Ray.h"
+#include "Direction.h"
 
-int main(int argc, char** argv) {
+
+int main() {
 
 	Scene S;
-	//S.createScene();
+
 	Camera C = Camera(1, 2, 5);
-	C.CreateImage();
 
+   C.render(S);
+   C.CreateImage();
 
-
-
-
-
-	return 0;
+   return 0;
 }

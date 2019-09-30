@@ -16,6 +16,21 @@ struct ColorDbl {
 	
 
 	//Implement overladed operators
+	//ColorDbl operator *(double &Res) {
+	//	ColorDbl New(r * Res, g * Res, b * Res);
+	//	return New;
+	//}
+
+	ColorDbl operator *(double Res) {
+		ColorDbl New(r * Res, g * Res, b * Res);
+		return New;
+	}
+
+	ColorDbl operator =(ColorDbl  Res) {
+		ColorDbl New( Res.r,  Res.g, Res.b);
+		return New;
+	}
+
 
 	double r, g, b;
 };
