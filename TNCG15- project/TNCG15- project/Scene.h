@@ -1,11 +1,11 @@
 #pragma once
 
-class Scene {
-public:
+struct Scene {
+
 	Scene(); //Default constructor
-	void createScene(); //
-	
-private:
+
+	void createScene(); 
+
 
 
 };
