@@ -1,22 +1,19 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <iostream>
 #include "Pixel.h"
-#include <vector>
-#include <new>
-#include <algorithm>
-#include <fstream>  
 #include "Ray.h"
 #include "ColorDbl.h"
+#include <random>
+#include <cmath>
+#include <random>
+#include <glm/gtc/constants.hpp>
+#include "Tetrahedron.h"
+#include "Light.h"
 struct Camera {
 
-	Camera() : pos(glm::vec3(0.0, 0.0, 0.0)) {}
+	Camera() {
 
-	Camera(float xIn, float yIn, float zIn) {
-		pos.x = xIn;
-		pos.y = yIn;
-		pos.z = zIn;
-
+		CameraSwap = 1;
 		for (int i = 0; i < WIDTH; i++) {
 			pixels[i] = new Pixel[WIDTH];
 			for (int j = 0; j < HEIGHT; j++) {
@@ -25,6 +22,14 @@ struct Camera {
 			}
 		}
 
+	}
+
+	~Camera()
+	{
+		for (int i = 0; i < HEIGHT; ++i) {
+			delete[] pixels[i];
+		}
+		delete[] pixels;
 	}
 
 	void CreateImage() {
@@ -73,51 +78,95 @@ struct Camera {
 		}
 	}
 
+	ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance){
+		
+		Triangle tri = scene.DetectTriangel(r).Tri;
+		ColorDbl s = ColorDbl();
+		Direction normal;
+		Vertex LightPoint;
+		double Tlenght = tri.IntersectionPoint.Distance(r.StartingPoint);
 
+		if (scene.LightIntersection(r,LightPoint)) {
+		
+		}
 
-	void render(Scene& scene) {
+		//If first intersection is with a triangle: if hitTriangle exists
+		if (tri.rayIntersection(r,tri.IntersectionPoint))
+		{
+			normal = tri.normal;
+			s = tri.color;
+			return s;
+		}
+		return  s;
+	}
+
+	void render(Scene& scene) { //WHat tha fuck is this
+
 		Ray r;
-		const int SubPixels = 2;
+		ColorDbl Color;
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> dis(-0.5, 0.5);
+		float param_y = 0, param_z = 0;
+		int Samples = 1;
 
 		for (int i = 0; i < HEIGHT; i++) {
 			for (int j = 0; j < WIDTH; j++) {
-				ColorDbl NewColor;
-				double Y = pixelSize/2+i*pixelSize;
-				double Z = pixelSize/2+j*pixelSize;
+				param_y = dis(gen);
+				param_z = dis(gen);
+	
+				Vertex px = Vertex(0.0f, -1.0f + ((double)i) * pixelSize, -1.0f + ( (double)j) * pixelSize, 1.0f);
 
-				for (int k = 0; k < SubPixels; ++k) {
-					for (int m = 0; m < SubPixels; ++m) {
-						Vertex SubpixArray = Vertex(0.0, Y - (m * pixelSize), Z - (k * pixelSize), 0.0);
-						r = Ray(Eyes[CameraSwap], SubpixArray);
-						//NewColor += CastRay(temp, scene, 0, ColorDbl(1.0, 1.0, 1.0));
-					}
+				for (int k = 0; k < Samples; k++) {
+					px.pos.y += param_y * pixelSize;
+					px.pos.z += param_z * pixelSize;
+
+			
+					Vertex ps = Eyes[CameraSwap];
+					glm::vec3 D = glm::normalize(px - ps);
+		
+					Vertex pe = ps + D;
+
+					Ray ray = Ray(ps, Direction(pe - ps));
+
+					Color = CastRay(ray, scene, 0, ColorDbl());
+
+					pixels[j][i].GetNewColor(Color);
+
+
 				}
-
-
-					pixels[i][j].color = NewColor;	
-
+				
 			}
+			
+			std::cout << (double)i / HEIGHT * 100.0 << "%" << std::endl;
 		}
-
+		
 	}
 
 
+
+	Scene* scene;
 	const double Trunc = 255.99;
 	const int HEIGHT = 800;
 	const int WIDTH = 800;
+
 	Pixel** pixels = new Pixel * [HEIGHT];
 	const double pixelSize = 0.0025;
+	Light LightSource;
 	glm::vec3 pos;
 	double max = 0.0;
 	int CameraSwap = 0;
+
+
+
+
 	Vertex Eyes[2]{
-		Vertex(-2, 0, 0, 0),
-		Vertex(-1, 0, 0, 0) };
+		Vertex(-1.5, 0, 0, 0),
+		Vertex(-1, 0, 0, 0)
+	};
 		
 	Vertex c1 = Vertex(0, -1, -1, 0);
 	Vertex c2 = Vertex(0, 1, -1, 0);
 	Vertex c3 = Vertex(0, 1, 1, 0);
 	Vertex c4 = Vertex(0,- 1, 1, 0);
-		
-
 };

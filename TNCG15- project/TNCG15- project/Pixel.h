@@ -10,6 +10,13 @@ struct Pixel {
 		MiddlePos = VertIn;
 
 	}
+
+	void GetNewColor(ColorDbl c) {
+		color.r = c.r;
+		color.g = c.g;
+		color.b = c.b;
+
+	}
 		ColorDbl color;
 		Vertex MiddlePos;
 
