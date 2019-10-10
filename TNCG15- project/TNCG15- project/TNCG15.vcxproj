@@ -135,13 +135,17 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorDbl.h" />
     <ClInclude Include="Direction.h" />
+    <ClInclude Include="IntersectionPointSphere.h" />
     <ClInclude Include="IntersectionPointTri.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Pixel.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Surface.h" />
     <ClInclude Include="Tetrahedron.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vertex.h" />

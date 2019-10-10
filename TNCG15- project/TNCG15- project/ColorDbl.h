@@ -30,23 +30,24 @@ struct ColorDbl {
 	}
 
 	ColorDbl operator * (double Res) {
-		this->r * Res;
-		this->g * Res;
-		this->b * Res;
+
+		this->r *= Res;
+		this->g *= Res;
+		this->b *= Res;
 		return *this;
 	}
 
 	ColorDbl operator * (ColorDbl Res) {
-		this->r* Res.r;
-		this->g* Res.g;
-		this->b* Res.b;
+		this->r *= Res.r;
+		this->g *= Res.g;
+		this->b *= Res.b;
 		return *this;
 	}
 
 	ColorDbl operator / (double Res) {
-		this->r/ Res;
-		this->g/ Res;
-		this->b/ Res;
+		this->r/= Res;
+		this->g/= Res;
+		this->b/= Res;
 		return *this;
 	}
 

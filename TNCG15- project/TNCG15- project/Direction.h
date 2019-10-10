@@ -25,7 +25,13 @@ struct Direction {
 		 return newDir;
 	 }
 
+	 glm::vec3 operator * (const double in) {
+
+		 this->Vec.x *= in;
+		 this->Vec.y *= in;
+		 this->Vec.z *= in;
+		 return this->Vec;
+	 }
+
 	 glm::vec3 Vec;
-
-
 };

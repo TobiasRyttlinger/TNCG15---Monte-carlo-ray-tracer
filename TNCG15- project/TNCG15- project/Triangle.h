@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include "Vertex.h"
 #include "ColorDbl.h"
-
+#include "Material.h"
 #include "Ray.h"
 
 
@@ -13,22 +13,31 @@ struct Triangle {
 
 	Triangle(){} //Default shit
 
-	Triangle(Vertex p0In, Vertex p1In, Vertex p2In, ColorDbl colorIn){
+	Triangle(Vertex p0In, Vertex p1In, Vertex p2In, Material matIn){
 
 		p0 = p0In; p1 = p1In; p2 = p2In;
 
 		edge1 = p1In.pos - p0In.pos;
 		edge2 = p2In.pos - p0In.pos;
 
-		color = colorIn;
+		material = matIn;
 		Area = 0.5 * glm::length(cross(edge1, edge2));
 		normal =  cross(edge1, edge2);
 
 	}
 
+	Vertex getPointOnTriangle(float u, float v) {
+		return Vertex(p0.pos + (u * edge1 + v * edge2),0);
+	}
+
+	Vertex getPointOnTriangle(float u, float v, float w) {
+		return Vertex((u * p0.pos + v * p1.pos + w * p2.pos),0);
+	}
+
+
 	bool rayIntersection(Ray& arg, Vertex& p) {
 		
-		const double EPSILON = 0.000000001;
+	
 		glm::vec3 T = arg.StartingPoint - p0;
 		glm::vec3 E1 = p1 - p0;
 		glm::vec3 E2 = p2 - p0;
@@ -45,19 +54,18 @@ struct Triangle {
 		 if (fabs(Determinant) < EPSILON) { return false; }
 		//std::cout << "ray is incoming from a good direction\n";
 		
-		 if (u < 0.0 || v > 1.0 || u + v > 1) { return false; }
+		 if (u < 0.0 || v < 0.0 || u + v > 1) { return false; }
 		//std::cout << " Found intersection! ";
 
 		 if (t < 1.0 ||  t <= 0.0) { return false; }
 		
 		else {
 			// std::cout << "Returning true" << std::endl;
-			glm::vec3 NewD = glm::vec3(D.x * t, D.y * t, D.z * t);
-			Direction EyeIp = Direction(T.x, T.y, T.z)+NewD;
-			Vertex Ip = Vertex(EyeIp.Vec.x, EyeIp.Vec.y, EyeIp.Vec.z, 1.0);
 			arg.color = this->color;
 			IntersectionPoint = GetBarycentric(u, v);
-			p = GetBarycentric(u,v);
+			Tout = t;
+			
+			p = GetBarycentric(u, v);
 			return true;
 		}
 	}
@@ -82,7 +90,7 @@ struct Triangle {
 		edge1 = Tin.p1.pos - Tin.p0.pos;
 		edge2 = Tin.p2.pos - Tin.p0.pos;
 
-		color = Tin.color;
+		material = Tin.material;
 		Area =Tin.Area;
 		normal = Tin.normal;
 		return *this;
@@ -94,7 +102,7 @@ struct Triangle {
 		os << dt.p0 << "," << dt.p1 << "," << dt.p2 <<" With the color: "<<"( "<< dt.color <<" )"<< std::endl;
 		return os;
 	}
-
+	Material material;
 	const double EPSILON = 0000000000.1;
 	Vertex p0,p1,p2;
 	ColorDbl color;

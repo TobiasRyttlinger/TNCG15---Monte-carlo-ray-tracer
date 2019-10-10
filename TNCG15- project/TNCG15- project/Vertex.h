@@ -29,8 +29,15 @@ struct Vertex {
 		return *this;
 	}
 
-	float Distance(Vertex &in) {
+	bool operator ==(Vertex Vin) {
+		if (this->pos.x == Vin.pos.x) return false;
+		if (this->pos.y == Vin.pos.y) return false;
+		if (this->pos.z == Vin.pos.z) return false;
+		else
+		return true;
+	}
 
+	float Distance(Vertex &in) {
 		return sqrt(pow(this->pos.x - in.pos.x, 2.0) + pow(this->pos.y - in.pos.y, 2.0) + pow(this->pos.z - in.pos.z, 2.0));
 	}
 

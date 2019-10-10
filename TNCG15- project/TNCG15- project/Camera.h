@@ -3,20 +3,20 @@
 #include "Pixel.h"
 #include "Ray.h"
 #include "ColorDbl.h"
-#include <random>
 #include <cmath>
 #include <random>
 #include <glm/gtc/constants.hpp>
 #include "Tetrahedron.h"
-#include "Light.h"
+#include "Scene.h"
+#include "Material.h"
 struct Camera {
 
 	Camera() {
 
-		CameraSwap = 1;
-		for (int i = 0; i < WIDTH; i++) {
-			pixels[i] = new Pixel[WIDTH];
-			for (int j = 0; j < HEIGHT; j++) {
+		CameraSwap = 0;
+		for (int i = 0; i < HEIGHT; i++) {
+			pixels[i] = new Pixel[HEIGHT];
+			for (int j = 0; j < WIDTH; j++) {
 				pixels[i][j] = Pixel();
 
 			}
@@ -78,78 +78,93 @@ struct Camera {
 		}
 	}
 
-	ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance){
-		
+	ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
+
 		Triangle tri = scene.DetectTriangel(r).Tri;
 		ColorDbl s = ColorDbl();
-		Direction normal;
-		Vertex LightPoint;
-		double Tlenght = tri.IntersectionPoint.Distance(r.StartingPoint);
-
-		if (scene.LightIntersection(r,LightPoint)) {
+		//std::cout << tri.IntersectionPoint << std::endl;
 		
-		}
+			if (tri.rayIntersection(r, tri.IntersectionPoint))
+			{	
+				
+				double Tlenght = tri.Tout;
 
-		//If first intersection is with a triangle: if hitTriangle exists
-		if (tri.rayIntersection(r,tri.IntersectionPoint))
-		{
-			normal = tri.normal;
-			s = tri.color;
-			return s;
+				if (scene.sphere.rayIntersection(r, scene.sphere.t)) {
+
+					if (scene.sphere.t < Tlenght) {
+
+						Direction D = (scene.sphere.Ip-scene.light.getRandomPointOnLight());
+						Ray newR = Ray(scene.sphere.Ip, D);
+						//return scene.light.GetEmission() * (0.8 / M_PI) * std::max(0.0f, glm::dot(scene.sphere.get_normal(scene.sphere.Ip.pos), D.Vec));
+						return CastRay(newR, scene, 0, ColorDbl(1, 1, 1));
+					}
+				}
+				//std::cout << PL << std::endl;
+				if (scene.SendShadowRays(scene.light, r, tri.IntersectionPoint, tri.normal)) {
+
+					Direction DirOut = (scene.light.getRandomPointOnLight() - tri.IntersectionPoint);
+
+						glm::vec3 Brdf = tri.material.GetBRDF(tri.IntersectionPoint, 0, tri.normal, DirOut);
+						return scene.light.GetEmission()*tri.material.color/M_PI *std::max(0.0f,glm::dot(tri.normal.Vec, DirOut.Vec));
+				}
+
+
+
+				return ColorDbl(0, 0, 0);
+			
+
 		}
+		
 		return  s;
+	}
+
+
+	
+
+	glm::vec3& operator *(const double &Din) {
+		glm::vec3 X;
+		X.x *= Din;
+		X.y *= Din;
+		X.z *= Din;
+		return X;
 	}
 
 	void render(Scene& scene) { //WHat tha fuck is this
 
 		Ray r;
 		ColorDbl Color;
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> dis(-0.5, 0.5);
-		float param_y = 0, param_z = 0;
 		int Samples = 1;
+		Vertex StartPoint = Eyes[CameraSwap];
+		
+		double c1StartY = c1.pos.y + pixelSize/2;
+		double c1StartZ = c1.pos.z + pixelSize/2;
 
 		for (int i = 0; i < HEIGHT; i++) {
 			for (int j = 0; j < WIDTH; j++) {
-				param_y = dis(gen);
-				param_z = dis(gen);
-	
-				Vertex px = Vertex(0.0f, -1.0f + ((double)i) * pixelSize, -1.0f + ( (double)j) * pixelSize, 1.0f);
+
+				Vertex CameraPlane = Vertex(0.0f, c1StartY + ((double)i) * pixelSize, c1StartZ + ((double)j) * pixelSize, 1.0f);
 
 				for (int k = 0; k < Samples; k++) {
-					px.pos.y += param_y * pixelSize;
-					px.pos.z += param_z * pixelSize;
-
-			
-					Vertex ps = Eyes[CameraSwap];
-					glm::vec3 D = glm::normalize(px - ps);
-		
-					Vertex pe = ps + D;
-
-					Ray ray = Ray(ps, Direction(pe - ps));
-
-					Color = CastRay(ray, scene, 0, ColorDbl());
+					Ray ray = Ray(StartPoint,CameraPlane);
+					Color = CastRay(ray, scene, 0, ColorDbl(1,1,1));
 
 					pixels[j][i].GetNewColor(Color);
-
-
 				}
-				
+
 			}
-			
-			std::cout << (double)i / HEIGHT * 100.0 << "%" << std::endl;
+
+			std::cout << (double)i/HEIGHT*100 << "%" << std::endl;
 		}
-		
+
 	}
 
 
-
+	const double Epsilon = 0.00001;
 	Scene* scene;
 	const double Trunc = 255.99;
 	const int HEIGHT = 800;
 	const int WIDTH = 800;
-
+	float t;
 	Pixel** pixels = new Pixel * [HEIGHT];
 	const double pixelSize = 0.0025;
 	Light LightSource;
@@ -157,16 +172,29 @@ struct Camera {
 	double max = 0.0;
 	int CameraSwap = 0;
 
+	void RotMat(glm::mat4& m, Direction X, Direction Y, Direction Z)
+	{
+		m[0][0] = X.Vec.x;
+		m[0][1] = X.Vec.y;
+		m[0][2] = X.Vec.z;
+		m[1][0] = Y.Vec.x;
+		m[1][1] = Y.Vec.y;
+		m[1][2] = Y.Vec.z;
+		m[2][0] = Z.Vec.x;
+		m[2][1] = Z.Vec.y;
+		m[2][2] = Z.Vec.z;
+		m[3][3] = 1.0;
+	}
 
-
+	//Vertex PointLight = Vertex(5, 0, 5, 0);
 
 	Vertex Eyes[2]{
-		Vertex(-1.5, 0, 0, 0),
+		Vertex(-2, 0, 0, 0),
 		Vertex(-1, 0, 0, 0)
 	};
-		
+
 	Vertex c1 = Vertex(0, -1, -1, 0);
 	Vertex c2 = Vertex(0, 1, -1, 0);
 	Vertex c3 = Vertex(0, 1, 1, 0);
-	Vertex c4 = Vertex(0,- 1, 1, 0);
+	Vertex c4 = Vertex(0, -1, 1, 0);
 };
