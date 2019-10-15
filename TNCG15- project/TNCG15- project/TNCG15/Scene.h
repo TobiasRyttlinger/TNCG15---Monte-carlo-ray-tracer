@@ -104,7 +104,7 @@ struct Scene {
 				
 				IntersectionPointTri tempIntersect;
 				//Check if the ray intersect the tringle, if true add the triangle to the returning vector		
-				if (triangle.rayIntersection(r, tempPoint))
+				if (triangle.rayIntersection(r, tempPoint.pos))
 				{
 					tempIntersect.Tri = triangle;
 					tempIntersect.point = tempPoint;
@@ -134,14 +134,15 @@ struct Scene {
 
 			for (int i = 24; i <= 27; i++) {
 
-				if (triangles[i].rayIntersection(ShadowRay,p)) {
-					return false;
+				if (!triangles[i].rayIntersection(ShadowRay,p.pos)) {
+					r = ShadowRay;
+					return true;
+					
 				}
-
+				return false;
 			}
 		
-			r = ShadowRay;
-			return true;
+			
 		}
 
 		void addSphere(double radius, glm::vec3 position) {

@@ -95,8 +95,8 @@ ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
 	ColorDbl s = ColorDbl();
 	ColorDbl indirectLight = ColorDbl();
 	//std::cout << tri.IntersectionPoint << std::endl;
-
-	if (tri.rayIntersection(r, tri.IntersectionPoint))
+																								//direction = target - currentLocation
+	if (tri.rayIntersection(r, tri.IntersectionPoint.pos))
 	{
 		
 		double Tlenght = tri.Tout;
@@ -106,17 +106,14 @@ ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
 			if (scene.sphere.t < Tlenght) {
 
 				if (scene.sphere.material.Id == Specular) {
-				
-					Sphere sphere = scene.sphere;
-					glm::vec3 normal = sphere.get_normal(sphere.Ip.pos);
-					glm::vec3 Bias = glm::vec3(normal.x * Epsilon, normal.y * Epsilon, normal.z * Epsilon);
-					glm::vec3 Point = sphere.Ip.pos + Bias;
+					std::cout << "Hit" << std::endl;
+					glm::vec3 normal = scene.sphere.get_normal(scene.sphere.Ip.pos);
+					Vertex R = Vertex(glm::reflect(scene.light.Ldirection.Vec, normal),0);
+			
+					Ray ref = Ray(scene.sphere.Ip,R);
+					s +=  CastRay(ref,scene, depth, importance)*0.8;
 					
-					Direction LightDir = Direction(scene.light.getRandomPointOnLight().pos - Point);
-					Ray Light = Ray(Eyes[CameraSwap], LightDir);
-					Ray ReflectedRay = Light.GetPerfectReflection(Light, normal, Point);
-					s += CastRay(ReflectedRay, scene, depth, importance) * 0.8;
-					return s;
+					return ColorDbl(1,0,0);
 
 				}
 				
@@ -142,33 +139,29 @@ ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
 				glm::vec3 Point;
 				Direction normal = tri.normal;
 
-				if (tri.normal.Vec.x == 0 && tri.normal.Vec.y == 1 && tri.normal.Vec.z == 0) {
-					tri.normal.Vec.z = 0;
-					Point = tri.IntersectionPoint.pos - (normal*Epsilon).Vec;
-				}
-				else {
-					Point = tri.IntersectionPoint.pos + (normal* Epsilon).Vec;
-				}
+
+		
+					Point = tri.IntersectionPoint.pos + (normal).Vec;
+			
 
 				Ray L = Ray(scene.light.getRandomPointOnLight(), Vertex(Point, 0));
 
 				Ray out = L.GetReflectedRay(L, tri.normal, Point);
 
-				double angle = glm::angle(L.direction.Vec, normal.Vec);
-
 				ColorDbl emittance = tri.material.color;
+
 				ColorDbl lightContribution = scene.light.GetEmission();
 
 				double rand = dis(gen);
 
 				s += tri.material.color;
-				int Max_Depth = 1;
+				int Max_Depth = 3;
 				if (depth < Max_Depth) {
 
-					//s += CastRay(out, scene, depth + 1, importance);
+					s += CastRay(out, scene, depth + 1, importance);
 				}
 				s = s / Max_Depth;
-				return s + tri.material.color * (lightContribution) * std::max(0.0f, glm::dot(-L.direction.Vec, normal.Vec));
+				return s + (tri.material.color*(lightContribution) * std::max(0.0f, glm::dot(-L.direction.Vec, normal.Vec)));
 				//}
 
 				return ColorDbl(0, 0, 0);
@@ -187,7 +180,7 @@ ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
 
 		Ray r;
 		ColorDbl Color;
-		int Samples =4;
+		int Samples =5;
 		float p_y = 0, p_z = 0;
 		Vertex StartPoint = Eyes[CameraSwap];
 		Vertex v;
@@ -218,7 +211,7 @@ ColorDbl CastRay(Ray r, Scene& scene, int depth, ColorDbl importance) {
 
 	}
 
-	 double Epsilon = 0.1;
+	 double Epsilon = 0.8;
 	Scene* scene;
 	const double Trunc = 255.99;
 	const int HEIGHT = 800;

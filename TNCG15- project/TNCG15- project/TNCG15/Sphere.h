@@ -39,17 +39,20 @@ struct Sphere {
 		}
 		else if (D1 < D0) {
 			t = D1;
-			this->Ip = Vertex(glm::vec3(o + D1 * arg.direction.Vec), 0);
+			Ip = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
+			arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
 			return true;
 		}
 		else if (D0 < D1) {
 			t = D0;
-			this->Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
+			arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
+			Ip = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
 			return true;
 		}
 		else {
 			t = D0;
-			this->Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
+			Ip = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
+			arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
 			return true;
 		}
 
