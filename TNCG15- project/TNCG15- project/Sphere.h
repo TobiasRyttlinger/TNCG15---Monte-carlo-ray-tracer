@@ -10,9 +10,9 @@ struct Sphere {
 	Sphere(){}
 
 	Sphere(double rIn, glm::vec3 centerP) {
-		rSq = glm::pow(rIn,2);
+		rSq = rIn*rIn;
 		center = centerP;
-		sphereMat = Material(ColorDbl(0.5, 0.5, 1.0),glm::vec3(0.8,0.8,0.8));
+		material = Material(ColorDbl(1, 0, 0),glm::vec3(1, 0, 0),1);
 	}
 
 	bool rayIntersection(Ray& arg, float &t) {
@@ -39,17 +39,17 @@ struct Sphere {
 		}
 		else if (D1 < D0) {
 			t = D1;
-			Ip = Vertex(glm::vec3(o + D1 * arg.direction.Vec), 0);
+			this->Ip = Vertex(glm::vec3(o + D1 * arg.direction.Vec), 0);
 			return true;
 		}
 		else if (D0 < D1) {
 			t = D0;
-			Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
+			this->Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
 			return true;
 		}
 		else {
 			t = D0;
-			Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
+			this->Ip = Vertex(glm::vec3(o + D0 * arg.direction.Vec), 0);
 			return true;
 		}
 
@@ -57,12 +57,12 @@ struct Sphere {
 	}
 
 	glm::vec3  get_normal(glm::vec3 pIn) {
-		return glm::normalize((pIn - center)) ;
+		return glm::normalize(pIn-center) ;
 	}
-	Material sphereMat;
+	Material material;
 	Vertex Ip;
 	float t;
-	ColorDbl color;
+
 	double rSq;
 	glm::vec3 center;
 };

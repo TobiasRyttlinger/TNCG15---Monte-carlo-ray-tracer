@@ -17,31 +17,31 @@ struct Scene {
 
 		Vertex Vertices[14]{
 
-			Vertex(-3.0, 0.0, 5.0, 1.0),//p1Roof
-			Vertex(0.0, 6.0, 5.0, 1.0),//p2Roof
-			Vertex(10.0, 6.0, 5.0, 1.0),//p3Roof
-			Vertex(13.0, 0.0, 5.0, 1.0),//p4Roof
-			Vertex(10.0, -6.0, 5.0, 1.0),//p5Roof
-			Vertex(0.0, -6.0, 5.0, 1.0),//p6Roof
-			Vertex(5.0, 0.0, 5.0, 1.0),//midRoof
+			Vertex(-3.0, 0.0, 5.0, 1.0),//p0Roof
+			Vertex(0.0, 6.0, 5.0, 1.0),//p1Roof
+			Vertex(10.0, 6.0, 5.0, 1.0),//p2Roof
+			Vertex(13.0, 0.0, 5.0, 1.0),//p3Roof
+			Vertex(10.0, -6.0, 5.0, 1.0),//p4Roof
+			Vertex(0.0, -6.0, 5.0, 1.0),//p5Roof
+			Vertex(5.0, 0.0, 5.0, 1.0),//6midRoof
 
-			Vertex(-3.0, 0.0, -5.0, 1.0),//p1Floor
-			Vertex(0.0, 6.0, -5.0, 1.0),//p2Floor
-			Vertex(10.0, 6.0, -5.0, 1.0),//p3Floor
-			Vertex(13.0, 0.0, -5.0, 1.0),//p4Floor
-			Vertex(10.0, -6.0, -5.0, 1.0),//p5Floor
-			Vertex(0.0, -6.0, -5.0, 1.0),//p6Floor
-			Vertex(5.0, 0.0, -5.0, 1.0)//midFloor
+			Vertex(-3.0, 0.0, -5.0, 1.0),//p7Floor
+			Vertex(0.0, 6.0, -5.0, 1.0),//p8Floor
+			Vertex(10.0, 6.0, -5.0, 1.0),//p9Floor
+			Vertex(13.0, 0.0, -5.0, 1.0),//p1f0loor
+			Vertex(10.0, -6.0, -5.0, 1.0),//p11Floor
+			Vertex(0.0, -6.0, -5.0, 1.0),//p12Floor
+			Vertex(5.0, 0.0, -5.0, 1.0)//13midFloor
 		};
 
 
-		Material Lambertian_White = Material(ColorDbl(1.0, 1.0, 1.0),glm::vec3(1.0,1.0,1.0));
-		Material Lambertian_Red = Material(ColorDbl(1.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 0.0));
-		Material Lambertian_Blue = Material(ColorDbl(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 1.0));
-		Material Lambertian_Green = Material(ColorDbl(0.0, 1.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-		Material Lambertian_Purple = Material(ColorDbl(0.5, 0.0, 0.5), glm::vec3(0.5, 0.0, 0.5));
-		Material Lambertian_Gray = Material(ColorDbl(0.8, 0.8, 0.8), glm::vec3(0.8, 0.8, 0.8));
-		Material Lambertian_Yellow = Material(ColorDbl(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0));
+		Material Lambertian_White = Material(ColorDbl(1.0, 1.0, 1.0),glm::vec3(1.0,1.0,1.0),0);
+		Material Lambertian_Red = Material(ColorDbl(1.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 0.0), 0);
+		Material Lambertian_Blue = Material(ColorDbl(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 1.0), 0);
+		Material Lambertian_Green = Material(ColorDbl(0.0, 1.0, 0.0), glm::vec3(0.0, 1.0, 0.0), 0);
+		Material Lambertian_Purple = Material(ColorDbl(0.5, 0.0, 0.5), glm::vec3(0.5, 0.0, 0.5), 0);
+		Material Lambertian_Gray = Material(ColorDbl(0.8, 0.8, 0.8), glm::vec3(0.8, 0.8, 0.8), 0);
+		Material Lambertian_Yellow = Material(ColorDbl(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0), 0);
 	
 		Triangle triangles[50]{
 			//ROof
@@ -59,23 +59,23 @@ struct Scene {
 		Triangle(Vertices[12], Vertices[11],  Vertices[13], Lambertian_Gray),//T5Floor
 		Triangle(Vertices[7], Vertices[12], Vertices[13], Lambertian_Gray),//T6Floor
 
-		Triangle(Vertices[0], Vertices[5],  Vertices[7], Lambertian_Green),//T1Wall
-		Triangle(Vertices[5], Vertices[12],  Vertices[7], Lambertian_Green),
+		Triangle(Vertices[0], Vertices[5],  Vertices[7], Lambertian_Yellow),//T1Wall
+		Triangle(Vertices[5], Vertices[12],  Vertices[7], Lambertian_Yellow),
 
-		Triangle(Vertices[12], Vertices[5],  Vertices[4], Lambertian_Green),//T2Wall
-		Triangle(Vertices[11], Vertices[12],  Vertices[4], Lambertian_Green),
+		Triangle(Vertices[12], Vertices[5],  Vertices[4], Lambertian_Red),//T2Wall
+		Triangle(Vertices[11], Vertices[12],  Vertices[4], Lambertian_Red),
 
-		Triangle(Vertices[11], Vertices[4],  Vertices[3], Lambertian_Purple),//T3Wall
-		Triangle(Vertices[10], Vertices[11],  Vertices[3], Lambertian_Purple),
+		Triangle(Vertices[11], Vertices[4],  Vertices[3], Lambertian_Yellow),//T3Wall
+		Triangle(Vertices[10], Vertices[11],  Vertices[3], Lambertian_Yellow),
 
-		Triangle(Vertices[0], Vertices[7],  Vertices[8], Lambertian_Gray),//T4Wall
-		Triangle(Vertices[0], Vertices[8],  Vertices[1], Lambertian_Gray),
+		Triangle(Vertices[0], Vertices[7],  Vertices[8], Lambertian_Purple),//T4Wall
+		Triangle(Vertices[0], Vertices[8],  Vertices[1], Lambertian_Purple),
 
-		Triangle(Vertices[1], Vertices[8],  Vertices[9], Lambertian_Red),//T5Wall
-		Triangle(Vertices[1], Vertices[9],  Vertices[2], Lambertian_Red),
+		Triangle(Vertices[1], Vertices[8],  Vertices[9], Lambertian_Blue),//T5Wall
+		Triangle(Vertices[1], Vertices[9],  Vertices[2], Lambertian_Blue),
 
-		Triangle(Vertices[2], Vertices[9],  Vertices[10], Lambertian_Blue),//T6Wall
-		Triangle(Vertices[2], Vertices[10],  Vertices[3], Lambertian_Blue)
+		Triangle(Vertices[2], Vertices[9],  Vertices[10], Lambertian_Purple),//T6Wall
+		Triangle(Vertices[2], Vertices[10],  Vertices[3], Lambertian_Purple)
 		};
 
 		void AddTethra(Tetrahedron& Tin) {
@@ -110,28 +110,28 @@ struct Scene {
 					tempIntersect.point = tempPoint;
 					
 					//Check for closest triangle
-					float dist = r.StartingPoint.Distance(tempIntersect.point);
+					double dist = r.StartingPoint.Distance(tempIntersect.point);
 					if (dist < disttriangel) {
 						disttriangel = dist;
 						ClosestTringle = tempIntersect;
 					}
 				}
 			}
+			r.EndPoint = ClosestTringle.point;
 			return ClosestTringle;
 		}
 
 
 		bool SendShadowRays(Light Light, Ray& r, Vertex Ip, Direction normal) {
-			Vertex LightPoint = Light.getRandomPointOnLight();
-			Vertex StartingPoint = Vertex(Ip.pos + glm::vec3(normal.Vec.x * Epsilon, normal.Vec.y * Epsilon, normal.Vec.z * Epsilon), 0);
+			Vertex LightPoint = light.Vertices[2];
+			Direction D = normal;
+			Vertex StartingPoint = Vertex(Ip.pos + D.Vec, 0);
 			float  t;
 			Ray ShadowRay = Ray(StartingPoint, LightPoint);
 			Vertex p;
 			
-			if (sphere.rayIntersection(ShadowRay, t)) {
-			//	std::cout << t << std::endl;
-				return false;
-			}
+			if (sphere.rayIntersection(ShadowRay, t)) return false;
+
 			for (int i = 24; i <= 27; i++) {
 
 				if (triangles[i].rayIntersection(ShadowRay,p)) {
@@ -139,18 +139,16 @@ struct Scene {
 				}
 
 			}
-			
-
-			
-
-				return true;
+		
+			r = ShadowRay;
+			return true;
 		}
 
 		void addSphere(double radius, glm::vec3 position) {
 			 sphere = Sphere(radius, position);
 
 		}
-		const double Epsilon = 0.001;
+		const double Epsilon = 0.0000000000001;
 		Sphere sphere;
 
 		Light light;

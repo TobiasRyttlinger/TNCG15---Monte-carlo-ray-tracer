@@ -37,6 +37,15 @@ struct ColorDbl {
 		return *this;
 	}
 
+	ColorDbl operator + (ColorDbl Res) {
+
+		this->r += Res.r;
+		this->g += Res.g;
+		this->b += Res.b;
+		return *this;
+	}
+
+
 	ColorDbl operator * (ColorDbl Res) {
 		this->r *= Res.r;
 		this->g *= Res.g;

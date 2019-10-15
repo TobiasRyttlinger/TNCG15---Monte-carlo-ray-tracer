@@ -7,7 +7,7 @@
 #include "Material.h"
 #include "Ray.h"
 
-
+#include "Surface.h"
 
 struct Triangle {
 
@@ -21,8 +21,8 @@ struct Triangle {
 		edge2 = p2In.pos - p0In.pos;
 
 		material = matIn;
-		Area = 0.5 * glm::length(cross(edge1, edge2));
-		normal =  cross(edge1, edge2);
+
+		normal =  glm::normalize(glm::cross(edge1, edge2));
 
 	}
 
@@ -34,40 +34,45 @@ struct Triangle {
 		return Vertex((u * p0.pos + v * p1.pos + w * p2.pos),0);
 	}
 
+	const glm::vec3& getNormal() const {
+		return normal.Vec;
+	}
 
 	bool rayIntersection(Ray& arg, Vertex& p) {
 		
 	
-		glm::vec3 T = arg.StartingPoint - p0;
+		glm::vec3 T = arg.StartingPoint.pos - p0.pos;
+		glm::vec3 D = glm::normalize(arg.direction.Vec);
 		glm::vec3 E1 = p1 - p0;
 		glm::vec3 E2 = p2 - p0;
-		glm::vec3 D = arg.EndPoint - arg.StartingPoint;
+		//glm::vec3 D = arg.EndPoint - arg.StartingPoint;
 		glm::vec3 P = glm::cross(D, E2);
-		glm::vec3 Q = glm::cross(T, E1);
+	
 		double Determinant = glm::dot(E1, P);
-		double t = (glm::dot(Q, E2))  / (glm::dot(P, E1));
-		double u = (glm::dot(P,  T))  / (glm::dot(P, E1));
-		double v = (glm::dot(Q,  D))  / (glm::dot(P, E1));
-
+		
 		if (Determinant < EPSILON) { return false; }
 		//std::cout << "broke at first" << std::endl;
-		 if (fabs(Determinant) < EPSILON) { return false; }
+		 if (std::abs(Determinant) < EPSILON) { return false; }
 		//std::cout << "ray is incoming from a good direction\n";
+		double u = (glm::dot(P,  T))  / Determinant;
 		
-		 if (u < 0.0 || v < 0.0 || u + v > 1) { return false; }
+		 if (u < 0.0 || u > 1.0) { return false; }
 		//std::cout << " Found intersection! ";
+	     glm::vec3 Q = glm::cross(T, E1);
 
-		 if (t < 1.0 ||  t <= 0.0) { return false; }
+		 double v = (glm::dot(Q,  D))  / Determinant;
+		 if (v < 0.0 || v > 1.0 || u + v > 1) { return false; }
+
+		 double t = (glm::dot(Q, E2))  / Determinant;
+		 if (t < 15) {
+			// std::cout << t << std::endl;
+			 Tout = t;
+			 this->IntersectionPoint = GetBarycentric(u, v);
+			 p = GetBarycentric(u, v);
+			 return true;
+
+		 }
 		
-		else {
-			// std::cout << "Returning true" << std::endl;
-			arg.color = this->color;
-			IntersectionPoint = GetBarycentric(u, v);
-			Tout = t;
-			
-			p = GetBarycentric(u, v);
-			return true;
-		}
 	}
 
 	Vertex GetBarycentric(double u, double v)
@@ -83,30 +88,30 @@ struct Triangle {
 	}
 
 	Triangle operator = (Triangle const &Tin) {
-		p0 = Tin.p0;
-		p1 = Tin.p1;
-		p2 = Tin.p2;
+		this->p0 = Tin.p0;
+		this->p1 = Tin.p1;
+		this->p2 = Tin.p2;
 
-		edge1 = Tin.p1.pos - Tin.p0.pos;
-		edge2 = Tin.p2.pos - Tin.p0.pos;
+		this->edge1 = Tin.p1.pos - Tin.p0.pos;
+		this->edge2 = Tin.p2.pos - Tin.p0.pos;
 
-		material = Tin.material;
-		Area =Tin.Area;
-		normal = Tin.normal;
+		this->material = Tin.material;
+	
+		this->normal = Tin.normal;
 		return *this;
 
 	}
 
 	friend std::ostream& operator<<(std::ostream& os,  Triangle dt)
 	{
-		os << dt.p0 << "," << dt.p1 << "," << dt.p2 <<" With the color: "<<"( "<< dt.color <<" )"<< std::endl;
+		os << dt.p0 << "," << dt.p1 << "," << dt.p2 <<" With the color: "<<"( "<< dt.material.color <<" )"<< std::endl;
 		return os;
 	}
+
+	Surface surface;
 	Material material;
-	const double EPSILON = 0000000000.1;
+	const double EPSILON = 0.000000001;
 	Vertex p0,p1,p2;
-	ColorDbl color;
-	double Area;
 	Vertex IntersectionPoint;
 	glm::vec3 edge1, edge2;
 	Direction normal;

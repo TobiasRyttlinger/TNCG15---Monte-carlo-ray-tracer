@@ -11,20 +11,21 @@ struct Light {
 
 	Light(double p0, double p1, double p2, ColorDbl L) {
 		p = Vertex(p0, p1, p2, 1);
-		createLight(p, L);
+		LightMat = Material(L, glm::vec3(1, 1, 1), 2);
+		createLight(p,LightMat);
 	}
 
-	void createLight(Vertex& Vin, ColorDbl Cin) {
+	void createLight(Vertex& Vin, Material Cin) {
 		
-		Vertices[0] = Vertex(glm::vec3(-1, 1, 0) + Vin.pos, 1) ;
-		Vertices[1] = Vertex(glm::vec3(1, 1, 0) + Vin.pos, 1) ;
-		Vertices[2] = Vertex(glm::vec3(-1, -1, 0) + Vin.pos, 1) ;
-		Vertices[3] = Vertex(glm::vec3(1, -1, 0) + Vin.pos, 1) ;
+		Vertices[0] = Vertex(4, 1, 0, 1)+Vin.pos;
+		Vertices[1] = Vertex(6, 1, 0, 1) + Vin.pos;
+		Vertices[2] = Vertex(4, -1, 0, 1) + Vin.pos;
+		Vertices[3] = Vertex(6, -1, 0, 1) + Vin.pos;
 
-		Triangles[0] = Triangle(Vertices[0], Vertices[2], Vertices[1], LightMat);
-		Triangles[1] = Triangle(Vertices[2], Vertices[3], Vertices[1], LightMat);
+		Triangles[0] = Triangle(Vertices[0], Vertices[3], Vertices[1], Cin);
+		Triangles[1] = Triangle(Vertices[2], Vertices[3], Vertices[0], Cin);
 
-		L0 = 1000 / M_PI;
+		L0 = 1000/M_PI;
 
 	}
 
@@ -33,7 +34,7 @@ struct Light {
 		float randomU = random / ((std::rand() % 8) + 2.0);
 		float randomV = random - randomU;
 		float randomW = 1 - randomU - randomV;
-		int r  = (float)rand() / RAND_MAX;
+		int r  = (double)rand() / RAND_MAX;
 		return Triangles[r].getPointOnTriangle(randomU, randomV, randomW);
 	}
 
@@ -43,7 +44,7 @@ struct Light {
 		return ColorDbl(1.0, 1.0, 1.0) * L0;
 
 	}
-	Material LightMat = Material(ColorDbl(1,1,1), glm::vec3(1,1,1));
+	Material LightMat;
 	std::vector<Triangle> triangle;
 	Direction Ldirection;
 	Vertex p;

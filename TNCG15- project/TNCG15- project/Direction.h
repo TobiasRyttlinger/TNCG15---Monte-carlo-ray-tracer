@@ -7,11 +7,13 @@ struct Direction {
 
 	Direction(): Vec(0.0){}
 
-	Direction(double x_, double y_, double z_) {
+	Direction(float x_, float y_, float z_) {
 		Vec = glm::normalize(glm::vec3(x_, y_, z_));
+
 	}
 	Direction(glm::vec3 inVec) {
 		Vec = glm::normalize(inVec);
+		
 
 	}
 
@@ -19,19 +21,24 @@ struct Direction {
 		 return sqrt(pow(Vec.x, 2) + pow(Vec.y, 2) + pow(Vec.z, 2));
 	 }
 
-	 Direction operator + (glm::vec3 inVec) {
-		 Direction newDir;
-		 newDir = glm::vec3(Vec.x + inVec.x, Vec.y + inVec.y, Vec.z + inVec.z);
-		 return newDir;
-	 }
-
-	 glm::vec3 operator * (const double in) {
-
-		 this->Vec.x *= in;
-		 this->Vec.y *= in;
-		 this->Vec.z *= in;
+	 Direction operator + (glm::vec3 in) {
+		 this->Vec.x += in.x;
+		 this->Vec.y += in.y;
+		 this->Vec.z += in.z;
 		 return this->Vec;
 	 }
 
+	 Direction operator * (const float in) {
+		 this->Vec.x *= in;
+		 this->Vec.y *= in;
+		 this->Vec.z *= in;
+		 return *this;
+	 }
+
+	 friend std::ostream& operator<<(std::ostream& os, Direction dt)
+	 {
+		 os << dt.Vec.x << "," << dt.Vec.y << "," << dt.Vec.z << std::endl;
+		 return os;
+	 }
 	 glm::vec3 Vec;
 };

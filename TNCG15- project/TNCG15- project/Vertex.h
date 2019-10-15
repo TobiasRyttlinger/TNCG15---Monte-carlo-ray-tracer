@@ -28,6 +28,21 @@ struct Vertex {
 		this->pos.z += obj.z;
 		return *this;
 	}
+	Vertex operator - (glm::vec3 obj) {
+		this->pos.x -= obj.x;
+		this->pos.y -= obj.y;
+		this->pos.z -= obj.z;
+		return *this;
+	}
+
+	Vertex operator + (Vertex obj) {
+		this->pos.x += obj.pos.x;
+		this->pos.y += obj.pos.y;
+		this->pos.z += obj.pos.z;
+		return *this;
+	}
+
+
 
 	bool operator ==(Vertex Vin) {
 		if (this->pos.x == Vin.pos.x) return false;
@@ -37,7 +52,7 @@ struct Vertex {
 		return true;
 	}
 
-	float Distance(Vertex &in) {
+	double Distance(Vertex &in) {
 		return sqrt(pow(this->pos.x - in.pos.x, 2.0) + pow(this->pos.y - in.pos.y, 2.0) + pow(this->pos.z - in.pos.z, 2.0));
 	}
 
