@@ -44,14 +44,14 @@ struct Scene {
 		Material Lambertian_Yellow = Material(ColorDbl(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0), 0);
 	
 		Triangle triangles[50]{
-			//ROof
+			//Floor
 		Triangle(Vertices[0], Vertices[1], Vertices[6], Lambertian_Gray),// T1Floor
 		Triangle(Vertices[1], Vertices[2],  Vertices[6], Lambertian_Gray),//T2Floor
 		Triangle(Vertices[2], Vertices[3],  Vertices[6], Lambertian_Gray),//T3Floor
 		Triangle(Vertices[3], Vertices[4],  Vertices[6], Lambertian_Gray),//T4Floor
 		Triangle(Vertices[4], Vertices[5],  Vertices[6], Lambertian_Gray),//T5Floor
 		Triangle(Vertices[5], Vertices[0], Vertices[6], Lambertian_Gray),//T6Floor
-			//FloOR
+			//Roof
 		Triangle(Vertices[8], Vertices[7], Vertices[13], Lambertian_Gray),// T1Floor
 		Triangle(Vertices[9], Vertices[8],  Vertices[13],Lambertian_Gray),//T2Floor
 		Triangle(Vertices[10], Vertices[9],  Vertices[13], Lambertian_Gray),//T3Floor
@@ -82,8 +82,7 @@ struct Scene {
 			triangles[24] = Tin.triangle[0];
 			triangles[25] = Tin.triangle[1];
 			triangles[26] = Tin.triangle[2];
-			triangles[27] = 
-				Tin.triangle[3];
+			triangles[27] = Tin.triangle[3];
 		}
 
 		void AddLight(Light& Lin) {
@@ -101,14 +100,14 @@ struct Scene {
 
 			for (auto& triangle : triangles)
 			{
-				Vertex tempPoint;
+				glm::vec3 tempPoint;
 				
 				IntersectionPointTri tempIntersect;
 				//Check if the ray intersect the tringle, if true add the triangle to the returning vector		
-				if (triangle.rayIntersection(r, tempPoint.pos))
+				if (triangle.rayIntersection(r, tempPoint))
 				{
 					tempIntersect.Tri = triangle;
-					tempIntersect.point = tempPoint;
+					tempIntersect.point.pos = tempPoint;
 					
 					//Check for closest triangle
 					double dist = r.StartingPoint.Distance(tempIntersect.point);
@@ -129,13 +128,13 @@ struct Scene {
 			Vertex StartingPoint = Vertex(Ip.pos + D.Vec, 0);
 			float  t;
 			Ray ShadowRay = Ray(StartingPoint, LightPoint);
-			Vertex p;
+
 			
 			if (sphere.rayIntersection(ShadowRay, t)) return false;
 
 			for (int i = 24; i <= 27; i++) {
 
-				if (!triangles[i].rayIntersection(ShadowRay,p.pos)) {
+				if (!triangles[i].rayIntersection(ShadowRay, Ip.pos)) {
 					r = ShadowRay;
 					return true;
 					

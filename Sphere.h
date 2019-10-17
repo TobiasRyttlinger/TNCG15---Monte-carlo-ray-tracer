@@ -12,7 +12,7 @@ struct Sphere {
 	Sphere(double rIn, glm::vec3 centerP) {
 		rSq = rIn*rIn;
 		center = centerP;
-		material = Material(ColorDbl(1, 0, 0),glm::vec3(1, 0, 0),1);
+		material = Material(ColorDbl(1, 0, 0),glm::vec3(1, 0, 0),0);
 	}
 
 	bool rayIntersection(Ray& arg, float &t) {

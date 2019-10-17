@@ -15,15 +15,15 @@ struct Light {
 		createLight(p,LightMat);
 	}
 
-	void createLight(Vertex& Vin, Material Cin) {
+	void createLight(Vertex& Vin, Material& Cin) {
 		
 		Vertices[0] = Vertex(4, 1, 0, 1)+Vin.pos;
 		Vertices[1] = Vertex(6, 1, 0, 1) + Vin.pos;
 		Vertices[2] = Vertex(4, -1, 0, 1) + Vin.pos;
 		Vertices[3] = Vertex(6, -1, 0, 1) + Vin.pos;
 
-		Triangles[0] = Triangle(Vertices[0], Vertices[3], Vertices[1], Cin);
-		Triangles[1] = Triangle(Vertices[2], Vertices[3], Vertices[0], Cin);
+		Triangles[0] = Triangle(Vertices[0], Vertices[1], Vertices[3], Cin);
+		Triangles[1] = Triangle(Vertices[2], Vertices[0], Vertices[3], Cin);
 
 		L0 = 1000/M_PI;
 

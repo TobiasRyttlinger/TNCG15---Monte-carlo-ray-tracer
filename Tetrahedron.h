@@ -26,7 +26,7 @@ struct Tetrahedron {
 		triangle[2] = Triangle(v1, v2, v3, mat); //Red
 		triangle[3] = Triangle(v1, v0, v2, mat); // Green
 	}
-	Material mat = Material(ColorDbl(1.0, .50, 1.0), glm::vec3(1.0, .50, 1.0),0);
+	Material mat = Material(ColorDbl(1.0, 0,0), glm::vec3(1.0, .50, 1.0),0);
 	Triangle triangle[4];
 	Vertex Vert[4];
 };

@@ -18,6 +18,13 @@ struct Ray {
 		
 	}
 
+	Ray(glm::vec3 sP, Direction Din) {
+		StartingPoint.pos = sP;
+		direction = Din;
+
+	}
+
+
 	Ray(Vertex sP, Direction Din) {
 		StartingPoint = sP;
 		direction = Din.Vec;
@@ -32,13 +39,8 @@ struct Ray {
 		direction = glm::normalize(EndPoint - StartingPoint);
 	}
 
-	Ray GetPerfectReflection(Ray& r, glm::vec3& normal, glm::vec3& point) {
 
-		Direction R = Direction(glm::reflect(r.direction.Vec, normal));
-		return Ray(Vertex(point,0), R);
-	}
-
-	Ray GetReflectedRay(Ray &r, Direction& normal, glm::vec3& point) {
+	Ray GetReflectedRay(Ray &r, glm::vec3& normal, glm::vec3& point) {
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<float> dis(0,1);
@@ -50,7 +52,7 @@ struct Ray {
 		double azzimut = (2.f * (double)M_PI * rand2);
 
 		glm::dvec3 _in = glm::vec3(direction.Vec.x,direction.Vec.y,direction.Vec.z);
-		glm::dvec3 _normal = glm::normalize(glm::vec3(normal.Vec.x, normal.Vec.y, normal.Vec.z));
+		glm::dvec3 _normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z));
 		glm::dvec3 _tangent = glm::normalize((glm::cross(_in, _normal)));
 		glm::dvec3 _out = _normal;
 

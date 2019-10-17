@@ -41,18 +41,15 @@ struct Triangle {
 		// positions of the ray
 		glm::vec3 rayStart = arg.StartingPoint.pos;
 		glm::vec3 direction = glm::normalize(arg.direction.Vec);
-		glm::vec3 pos;
 
 		// edges of triangle
-
-
-
 		// calculate determinant
+
 		glm::vec3 edgeNormal = glm::cross(direction, edge2);
 		double determinant = glm::dot(edge1, edgeNormal);
 
 		// if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-		if (std::abs(determinant) < EPSILON)
+		if (determinant > -EPSILON && determinant < EPSILON)
 			return false;
 
 		double inverted_determinant = 1.0 / determinant;
@@ -77,7 +74,7 @@ struct Triangle {
 			return false;
 
 		double T = glm::dot(edge2, Q) * inverted_determinant;
-		if (T > EPSILON ) {
+		if (T > EPSILON) {
 
 			Tout = T;
 			p = rayStart + direction * (float)T;
@@ -128,7 +125,7 @@ struct Triangle {
 
 	Surface surface;
 	Material material;
-	const float EPSILON = 0.000001;
+	const double EPSILON = 0.0001;
 	Vertex p0,p1,p2;
 	Vertex IntersectionPoint;
 	glm::vec3 edge1, edge2;
