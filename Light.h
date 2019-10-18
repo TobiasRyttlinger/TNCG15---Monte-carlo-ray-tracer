@@ -25,7 +25,7 @@ struct Light {
 		Triangles[0] = Triangle(Vertices[0], Vertices[1], Vertices[3], Cin);
 		Triangles[1] = Triangle(Vertices[2], Vertices[0], Vertices[3], Cin);
 
-		L0 = 1000/M_PI;
+		L0 = 1000;
 
 	}
 

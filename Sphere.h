@@ -47,7 +47,7 @@ struct Sphere {
 		if (t0 < FLT_EPSILON) {
 			t0 = t1;
 			if (t0 < FLT_EPSILON)
-				return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
+				return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
 		t = t0;

@@ -38,6 +38,7 @@ struct Ray {
 		direction = glm::normalize(EndPoint - StartingPoint);
 	}
 
+	
 
 	Ray GetReflectedRay(Ray &r, glm::vec3& normal, glm::vec3& point) {
 		std::random_device rd;
