@@ -7,65 +7,71 @@
 #include "ColorDbl.h"
 #include <iostream>
 struct Sphere {
-	Sphere(){}
+	Sphere() {}
 
 	Sphere(double rIn, glm::vec3 centerP) {
-		rSq = rIn*rIn;
+		r = rIn;
 		center = centerP;
-		material = Material(ColorDbl(1, 0, 0),glm::vec3(1, 0, 0),0);
+		material = Material(ColorDbl(1, 0, 0), glm::vec3(1, 0, 0), 1);
 	}
 
-	bool rayIntersection(Ray& arg, float &t) {
+	glm::vec3 rayIntersection(Ray arg, float& t) {
 
-		float a = 1;
-		glm::vec3 o = arg.StartingPoint.pos;
-		glm::vec3 l = glm::normalize(center-o);
-		//std::cout << center.x << std::endl;
-		float tca = glm::dot(l, arg.direction.Vec);
-		
-		if (tca < 0) return false;
-		
-		float d2 = 1 - tca * tca;
-		
-		if (d2 > sqrt(rSq)) return false;
-		
-		float thc = sqrt(sqrt(rSq) - d2);
-		float D0, D1;
-		D0 = tca - thc;
-		D1 = tca + thc;
 
-		if (D0 <= 0 && D1 <= 0) {
-			return false;
-		}
-		else if (D1 < D0) {
-			t = D1;
-			Ip.pos = arg.StartingPoint.pos + l * (float)D1;
-		//	arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
-			return true;
-		}
-		else if (D0 < D1) {
-			t = D0;
-			//arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
-			Ip.pos = arg.StartingPoint.pos + l * (float)D0;
-			return true;
-		}
-		else {
-			t = D0;
-			Ip.pos = arg.StartingPoint.pos + l * (float)D0;
-			//arg.EndPoint = Vertex(glm::vec3(o + t * arg.direction.Vec), 0);
-			return true;
+		glm::vec3 rayDirection = glm::normalize(glm::vec3(arg.EndPoint - arg.StartingPoint));
+		t = FLT_MAX;
+
+
+		glm::vec3 L = center - arg.StartingPoint.pos;
+
+		float tca = glm::dot(L, rayDirection);
+
+		if (tca < FLT_EPSILON)
+			return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
+
+		float r2 = glm::pow(r, 2);
+
+		float d2 = glm::dot(L, L) - glm::pow(tca, 2);
+
+		if (d2 > r2)
+			return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
+
+		float thc = glm::sqrt(r2 - d2);
+
+		float t0 = tca - thc;
+		float t1 = tca + thc;
+
+		if (t0 > t1)
+			std::swap(t0, t1);
+
+		if (t0 < FLT_EPSILON) {
+			t0 = t1;
+			if (t0 < FLT_EPSILON)
+				return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
 		}
 
-		return false;
+		t = t0;
+	
+		glm::vec3 hitPoint = arg.StartingPoint.pos + glm::vec3(rayDirection * t);
+
+
+		//std::cout << hitPoint.x << "," << hitPoint.y << ", " << hitPoint.z << std::endl;
+		get_normal(glm::vec3(hitPoint));
+
+
+		return hitPoint;
+
+
+
 	}
 
 	glm::vec3  get_normal(glm::vec3 pIn) {
-		return glm::normalize(pIn-center) ;
+		return glm::normalize(pIn - center);
 	}
 	Material material;
 	Vertex Ip;
 	float t;
 
-	double rSq;
+	double r;
 	glm::vec3 center;
 };

@@ -21,7 +21,7 @@ struct Triangle {
 		edge2 = p2In.pos - p0In.pos;
 
 		material = matIn;
-
+	
 		normal =  glm::normalize(glm::cross(edge1, edge2));
 	}
 
@@ -47,7 +47,7 @@ struct Triangle {
 
 		glm::vec3 edgeNormal = glm::cross(direction, edge2);
 		double determinant = glm::dot(edge1, edgeNormal);
-
+		if (fabs(determinant) < 0.0000001) return false;
 		// if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
 		if (determinant > -EPSILON && determinant < EPSILON)
 			return false;
@@ -62,7 +62,7 @@ struct Triangle {
 
 		double U = glm::dot(rayToVertex, edgeNormal) * inverted_determinant;
 
-		if (U < 0.f || U > 1.f)
+		if (U < 0.0 || U > 1.0)
 			return false;
 
 		// Prepare to test v parameter
@@ -70,7 +70,7 @@ struct Triangle {
 		// Calculate V parameter and test bound
 		double V = glm::dot(direction, Q) * inverted_determinant;
 		// The intersection lies outside of the triangle
-		if (V < 0.f || U + V  > 1.f)
+		if (V < 0.0 || U + V  > 1.0)
 			return false;
 
 		double T = glm::dot(edge2, Q) * inverted_determinant;
@@ -78,15 +78,25 @@ struct Triangle {
 
 			Tout = T;
 			p = rayStart + direction * (float)T;
-			IntersectionPoint.pos = rayStart + direction * (float)T;
+			//IntersectionPoint.pos = rayStart + direction * (float)T;
 			return true;
 		}
+		else return false;
 
-		return false;
+		
 	}
 
+	glm::vec3 getRandomPoint() {
+		double triangleArea = area();
+		double a = (rand() / RAND_MAX) / triangleArea;
+		double b = (rand() / RAND_MAX) / triangleArea;
+		if (a + b > 1.0) {
+			return getRandomPoint();
+		}
+		return GetBarycentric((float)a, (float)b);
+	}
 
-	double area() const {
+	double area() {
 		return 0.5 * glm::length(glm::cross(edge1, edge2));
 	}
 
@@ -109,7 +119,7 @@ struct Triangle {
 
 		this->edge1 = Tin.p1.pos - Tin.p0.pos;
 		this->edge2 = Tin.p2.pos - Tin.p0.pos;
-
+		this->IntersectionPoint = Tin.IntersectionPoint;
 		this->material = Tin.material;
 	
 		this->normal = Tin.normal;
@@ -125,7 +135,7 @@ struct Triangle {
 
 	Surface surface;
 	Material material;
-	const double EPSILON = 0.0001;
+	const double EPSILON = 0.000001;
 	Vertex p0,p1,p2;
 	Vertex IntersectionPoint;
 	glm::vec3 edge1, edge2;

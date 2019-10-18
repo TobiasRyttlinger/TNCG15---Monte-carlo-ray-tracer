@@ -52,8 +52,8 @@ struct Vertex {
 		return true;
 	}
 
-	double Distance(Vertex &in) {
-		return sqrt(pow(this->pos.x - in.pos.x, 2.0) + pow(this->pos.y - in.pos.y, 2.0) + pow(this->pos.z - in.pos.z, 2.0));
+	double Distance(glm::vec3 &in) {
+		return sqrt(pow(this->pos.x - in.x, 2.0) + pow(this->pos.y - in.y, 2.0) + pow(this->pos.z - in.z, 2.0));
 	}
 
 

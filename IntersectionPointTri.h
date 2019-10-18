@@ -3,7 +3,7 @@
 struct IntersectionPointTri {
 
 	Triangle Tri;
-	Vertex point;
+	glm::vec3 point;
 	float w;
 
 };

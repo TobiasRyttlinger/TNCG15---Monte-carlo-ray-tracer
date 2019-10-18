@@ -24,17 +24,16 @@ struct Ray {
 
 	}
 
+	Ray(glm::vec3 sP, glm::vec3 Din) {
+		StartingPoint.pos = sP;
+		direction = Din;
 
-	Ray(Vertex sP, Direction Din) {
-		StartingPoint = sP;
-		direction = Din.Vec;
-		EndPoint.pos = sP.pos + (float)Din.CalcLength();
-		color = ColorDbl(1.0, 1.0, 1.0);
 	}
 
-	Ray(Vertex sP, Vertex eP) {
+
+	Ray(Vertex sP, glm::vec3 eP) {
 		StartingPoint = sP;
-		EndPoint = eP;
+		EndPoint.pos = eP;
 		color = ColorDbl(1.0,1.0,1.0);
 		direction = glm::normalize(EndPoint - StartingPoint);
 	}
@@ -43,13 +42,13 @@ struct Ray {
 	Ray GetReflectedRay(Ray &r, glm::vec3& normal, glm::vec3& point) {
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_real_distribution<float> dis(0,1);
+		std::uniform_real_distribution<> dis(0, 1);//uniform distribution between 0 and 1
 	
 		double rand1 = dis(gen);
 		double rand2 = dis(gen);
 
 		double inclanation = (double)acos(sqrt(rand1));
-		double azzimut = (2.f * (double)M_PI * rand2);
+		double azzimut = (2.0 * (double)M_PI * rand2);
 
 		glm::dvec3 _in = glm::vec3(direction.Vec.x,direction.Vec.y,direction.Vec.z);
 		glm::dvec3 _normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z));
@@ -64,7 +63,7 @@ struct Ray {
 
 		Direction output = Direction(_out.x, _out.y, _out.z);
 
-		return Ray(Vertex(point,0), output);
+		return Ray(point, output);
 
 
 	}
