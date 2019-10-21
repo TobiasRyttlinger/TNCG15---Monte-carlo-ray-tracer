@@ -60,9 +60,15 @@ struct Sphere {
 
 
 		return hitPoint;
+	}
 
-
-
+	Sphere operator = (Sphere In) {
+		this->Ip = In.Ip;
+		this->center = In.center;
+		this->t = In.t;
+		this->material = In.material;
+		this->r = In.r;
+		return *this;
 	}
 
 	glm::vec3  get_normal(glm::vec3 pIn) {

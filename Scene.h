@@ -37,13 +37,13 @@ struct Scene {
 		};
 
 
-		Material Lambertian_White = Material(ColorDbl(1.0, 1.0, 1.0),glm::vec3(1.0,1.0,1.0),0);
-		Material Lambertian_Red = Material(ColorDbl(1.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 0.0), 0);
-		Material Lambertian_Blue = Material(ColorDbl(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 1.0), 0);
-		Material Lambertian_Green = Material(ColorDbl(0.0, 1.0, 0.0), glm::vec3(0.0, 1.0, 0.0), 0);
-		Material Lambertian_Purple = Material(ColorDbl(0.5, 0.0, 0.5), glm::vec3(0.5, 0.0, 0.5), 0);
-		Material Lambertian_Gray = Material(ColorDbl(0.8, 0.8, 0.8), glm::vec3(0.8, 0.8, 0.8), 0);
-		Material Lambertian_Yellow = Material(ColorDbl(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0),0);
+		Material Lambertian_White = Material(ColorDbl(1.0, 1.0, 1.0),glm::vec3(1.0,1.0,1.0),3);
+		Material Lambertian_Red = Material(ColorDbl(1.0, 0.0, 0.0), glm::vec3(1.0, 0.0, 0.0), 3);
+		Material Lambertian_Blue = Material(ColorDbl(0.0, 0.0, 1.0), glm::vec3(0.0, 0.0, 1.0), 3);
+		Material Lambertian_Green = Material(ColorDbl(0.0, 1.0, 0.0), glm::vec3(0.0, 1.0, 0.0), 3);
+		Material Lambertian_Purple = Material(ColorDbl(0.5, 0.0, 0.5), glm::vec3(0.5, 0.0, 0.5), 3);
+		Material Lambertian_Gray = Material(ColorDbl(0.8, 0.8, 0.8), glm::vec3(0.8, 0.8, 0.8), 3);
+		Material Lambertian_Yellow = Material(ColorDbl(1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0), 3);
 	
 		Triangle triangles[30]{
 			//Floor
@@ -61,8 +61,8 @@ struct Scene {
 		Triangle(Vertices[12], Vertices[11],  Vertices[13], Lambertian_Gray),//T5Floor
 		Triangle(Vertices[7], Vertices[12], Vertices[13], Lambertian_Gray),//T6Floor
 
-		Triangle(Vertices[0], Vertices[5],  Vertices[7], Lambertian_White),//T1Wall
-		Triangle(Vertices[5], Vertices[12],  Vertices[7], Lambertian_White),
+		Triangle(Vertices[0], Vertices[5],  Vertices[7], Lambertian_Gray),//T1Wall
+		Triangle(Vertices[5], Vertices[12],  Vertices[7], Lambertian_Gray),
 
 		Triangle(Vertices[12], Vertices[5],  Vertices[4], Lambertian_Red),//T2Wall
 		Triangle(Vertices[11], Vertices[12],  Vertices[4], Lambertian_Red),
@@ -112,7 +112,7 @@ struct Scene {
 					//std::cout << tempPoint.x << std::endl;
 					tempIntersect.Tri = triangle;
 					tempIntersect.Tri.IntersectionPoint.pos = tempPoint;
-					tempIntersect.point = tempPoint - triangle.normal.Vec * 0.001f;
+					tempIntersect.point = tempPoint + triangle.normal.Vec * 0.01f;
 				//	std::cout << tempIntersect.point.x << std::endl;
 					intersections.push_back(tempIntersect);
 					
@@ -127,12 +127,44 @@ struct Scene {
 			return intersections;
 		}
 
+		std::list<IntersectionPointSphere> DetectSphere(Ray& r)
+		{
+			std::list<IntersectionPointSphere> intersections = {};
+			//Loop over all triangles in the vector
+			float distSphere = 1000000.0f;
+			IntersectionPointSphere ClosestSphere;
+
+
+				float tempT;
+				IntersectionPointSphere tempIntersect;
+				//Check if the ray intersect the tringle, if true add the triangle to the returning vector		
+				
+				if (sphere.rayIntersection(r, tempT) != glm::vec3(0,0,0))
+				{
+					
+					tempIntersect.sphere = sphere;
+					tempIntersect.P = sphere.rayIntersection(r, tempT) + sphere.get_normal(tempIntersect.P) * 0.01f;
+					tempIntersect.normal = sphere.get_normal(tempIntersect.P);
+					tempIntersect.Found = true;
+					intersections.push_back(tempIntersect);
+					
+				}
+				glm::vec3 Raystart = r.StartingPoint.pos;
+				intersections.sort([&Raystart](const auto& a, const auto& b) {
+					return glm::length(a.P - Raystart) > glm::length(b.P - Raystart);
+				});
+				return intersections;
+		}
+
 
 		void addSphere(double radius, glm::vec3 position) {
 			 sphere = Sphere(radius, position);
 
 		}
 
+		int Lambertian = 0;
+		int OrenNayar = 3;
+		int Mirror = 1;
 		const double Epsilon = 0.0000000000001;
 		Sphere sphere;
 		Tetrahedron Tet;

@@ -87,16 +87,17 @@ struct Camera {
 	ColorDbl CastRay(Ray r, Scene& scene, int depth,int Bounces) {
 
 	
-		int Max_Depth = 2;
+		int Max_Depth = 3;
 		std::list<IntersectionPointTri> intersections = scene.DetectTriangel(r);
-		
+		std::list<IntersectionPointSphere> intersectionsS = scene.DetectSphere(r);
+
 		ColorDbl s = ColorDbl();
 		double TriangleDist = 100;
 		double SphereDist = 100;
 
 		glm::vec3 SphereHit = scene.sphere.rayIntersection(r, scene.sphere.t);
 		
-		if (Bounces > 5) {
+		if (Bounces > 3) {
 			return ColorDbl(1,1,1);
 		}
 
@@ -107,7 +108,7 @@ struct Camera {
 
 		SphereDist = scene.sphere.t;
 
-		if (SphereDist < TriangleDist) {
+		if (SphereDist < TriangleDist && SphereDist >Epsilon) {
 			if (scene.sphere.material.Id == Specular) {
 
 				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
@@ -118,17 +119,32 @@ struct Camera {
 				Direction Dirout = GetPerfectReflection(L, normal);
 				
 				Ray Out = Ray(Point, Dirout);
-				s = scene.sphere.material.color;
-				if (depth < Max_Depth) {
-					s += CastRay(Out, scene, depth, Bounces+1) * 0.8;
-					
-				}
+			
+				//return CastRay(Out, scene, depth, Bounces+1);
+				
 
 			}
 			if (scene.sphere.material.Id == Lambertian) {
-
 				return scene.sphere.material.color;
 
+			}
+			if (scene.sphere.material.Id == 4) {
+				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
+				glm::vec3 Point = SphereHit + glm::vec3(normal.x * 0.01, normal.y * 0.01, normal.z * 0.01);
+
+				Ray L = Ray(glm::vec3(5, 0, -4.9), Point);
+
+				Direction Dirout = GetPerfectReflection(L, normal);
+
+				Ray Out = Ray(Point, Dirout);
+
+				Direction Dout = Direction(scene.sphere.material.GetBRDF(Point, 4, L.direction.Vec, Out.direction.Vec, normal));
+				//std::cout << Dout << std::endl;
+				Out = Ray(Point, Dout);
+				if (depth < Max_Depth) {
+					return CastRay(Out, scene, depth, Bounces + 1) * 0.8;
+					//std::cout << s << std::endl;
+				}
 			}
 		}
 		
@@ -148,7 +164,7 @@ struct Camera {
 				else if (tri.material.Id == 1) {
 
 					glm::vec3 normal = tri.normal.Vec;
-					glm::vec3 Point = tri.IntersectionPoint.pos + glm::vec3(normal.x * 0.1, normal.y * 0.1, normal.z * 0.1);
+					glm::vec3 Point = tri.IntersectionPoint.pos + glm::vec3(normal.x * 0.001, normal.y * 0.001, normal.z * 0.001);
 
 					Ray L = Ray(glm::vec3(5,0,-4.9), Point);
 			
@@ -174,7 +190,37 @@ struct Camera {
 					Ray out = L.GetReflectedRay(L, normal, Point);
 
 					ColorDbl lightContribution = scene.light.GetEmission();
+					ColorDbl Lambertian = tri.material.GetBRDF(Point, 0, L.direction.Vec, out.direction.Vec, normal);
 
+					double random = ((double) rand() / (RAND_MAX));
+					double rrTop = std::max(std::max(Lambertian.r, Lambertian.g), Lambertian.b);
+
+					s = tri.material.color;
+					if (depth < Max_Depth|| random < rrTop) {
+
+						s = CastRay(out, scene, depth + 1, Bounces);
+					}
+
+					s = s / Max_Depth;
+				
+					ColorDbl Color = Lambertian * lightContribution * std::max(0.0f, glm::dot(-L.direction.Vec, normal));
+
+					ColorDbl DirectLight = SendShadowRays(scene, L, Point);
+
+					s = s+ Color* DirectLight;
+					
+				}
+				else if (tri.material.Id == 3) {
+					glm::vec3 normal = tri.normal.Vec;
+					glm::vec3 Point = tri.IntersectionPoint.pos + glm::vec3(normal.x * 0.001, normal.y * 0.001, normal.z * 0.001);
+
+
+					Ray L = Ray(glm::vec3(5, 0, -4.9), Point);
+
+					Ray out = L.GetReflectedRay(L, normal, Point);
+
+					ColorDbl Oren = tri.material.GetBRDF(Point, tri.material.Id, L.direction.Vec, out.direction.Vec, normal);
+				
 					s = tri.material.color;
 					if (depth < Max_Depth) {
 
@@ -183,11 +229,9 @@ struct Camera {
 
 					s = s / Max_Depth;
 
-					ColorDbl Color = tri.material.color * lightContribution * std::max(0.0f, glm::dot(-L.direction.Vec, normal))/M_PI;
-
-					ColorDbl DirectLight = SendShadowRays(scene, L, Point);
-
-					s = s + Color * DirectLight;
+					glm::vec3 DirectLight = SendShadowRays(scene, L, Point);
+					
+					s = s+  Oren * scene.light.GetEmission()*DirectLight;
 					
 				}
 
@@ -204,25 +248,32 @@ struct Camera {
 
 	glm::vec3 SendShadowRays(Scene &scene,Ray &RayOut, glm::vec3& point) {
 
-	//	std::cout << RayOut.direction << std::endl;
-		Ray light = Ray(point, glm::vec3(5, 0, -4.9));
+		Ray light = Ray(point, glm::vec3(-5, 0, -4.9));
 		glm::vec3 Color = glm::vec3(1,1,1);
-
+	//	RayOut.direction.Vec = -RayOut.direction.Vec;
 		glm::vec3 SphereHit = scene.sphere.rayIntersection(light, scene.sphere.t);
 		
 		std::list<IntersectionPointTri> intersections = scene.DetectTriangel(light);
+		std::list<IntersectionPointSphere> intersectionsS = scene.DetectSphere(light);
 
-		for(auto& intersection : intersections){
-			if (intersections.size() > 2) {
-				Color = glm::vec3(0, 0, 0);
-			}
-		
-			if ( SphereHit != glm::vec3(0,0,0)) {
-				//std::cout << scene.sphere.t << ", " << intersection.Tri.Tout << std::endl;
+		Triangle tri = intersections.front().Tri;
+		Sphere sph = intersectionsS.front().sphere;
+		float distToLight = glm::distance(glm::vec3(-5, 0, -4.9), point);
+
+		for (auto& intersection : intersections) {
+			if (intersection.Tri.rayIntersection(light,intersection.point) && intersections.size() > 2) {
+				
 				Color = glm::vec3(0, 0, 0);
 			}
 		}
-
+		for (auto& intersection : intersectionsS) {
+			double SDist = glm::distance(intersection.sphere.Ip.pos, point);
+			if (SDist < distToLight) {
+			
+			//	Color = glm::vec3(0, 0, 0);
+			}
+		}
+		
 
 
 		return Color;
@@ -238,7 +289,7 @@ struct Camera {
 
 		Ray r;
 		ColorDbl Color;
-		int Samples =15;																				//SAMPLES!!!!!!!!!!!!!!!!!!!!!!!!!!
+		int Samples =2;																				//SAMPLES!!!!!!!!!!!!!!!!!!!!!!!!!!
 		float p_y = 0, p_z = 0;
 		Vertex StartPoint = Eyes[CameraSwap];
 		glm::vec3 v;

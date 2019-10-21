@@ -14,9 +14,10 @@
 int main() {
 	
 	Scene S;
-	Light L(1, 0, -4.9, ColorDbl(1, 1, 1));
-	Tetrahedron tetra(8, 3,4.99, ColorDbl(0, 1, 1));
-	S.addSphere(1, glm::vec3(5,-2, 0));
+	Light L(0, 0, -4.9, ColorDbl(1, 1, 1));
+	Tetrahedron tetra(6, 3,3, ColorDbl(0, 1, 1));
+	S.addSphere(1, glm::vec3(4,-1, 1));
+	//S.addSphere(1, glm::vec3(4, 1, -1));
 	S.AddTethra(tetra);
 	S.AddLight(L);
 	Camera C;

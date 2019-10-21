@@ -24,15 +24,15 @@ struct Tetrahedron {
 		Vertex v3 = Vertex(glm::vec3(1.0f, 0.0f, -4.0f) + V.pos,1);
 
 		triangle[0] = Triangle(v0, v3, v1, mat); // Red
-		triangle[1] = Triangle(v1, v3, v2, mat1); // Green
-		triangle[2] = Triangle(v0, v2, v3, mat2); //Blue
-		triangle[3] = Triangle(v1, v2, v0, mat3); // Yellow
+		triangle[1] = Triangle(v1, v3, v2, mat); // Green
+		triangle[2] = Triangle(v0, v2, v3, mat); //Blue
+		triangle[3] = Triangle(v1, v2, v0, mat); // Yellow
 	}
 	
-	Material mat = Material(ColorDbl(1.0, 0,0), glm::vec3(1.0, .50, 1.0),0);
-	Material mat1 = Material(ColorDbl(0, 1.0, 0), glm::vec3(1.0, .50, 1.0), 0);
-	Material mat2 = Material(ColorDbl(0, 0, 1.0), glm::vec3(1.0, .50, 1.0), 0);
-	Material mat3 = Material(ColorDbl(0, 1.0, 1.0), glm::vec3(1.0, .50, 1.0),0);
+	Material mat = Material(ColorDbl(1.0, 0,0), glm::vec3(1.0, 0, 0),3);
+	Material mat1 = Material(ColorDbl(0, 1.0, 0), glm::vec3(1.0, .50, 1.0),3);
+	Material mat2 = Material(ColorDbl(0, 0, 1.0), glm::vec3(1.0, .50, 1.0), 3);
+	Material mat3 = Material(ColorDbl(0, 1.0, 1.0), glm::vec3(1.0, .50, 1.0),3);
 	Triangle triangle[4];
 	Vertex Vert[4];
 };

@@ -1,10 +1,10 @@
-#pragma once
+
 #include "Sphere.h"
 
 struct IntersectionPointSphere {
 
 	Sphere sphere;
-	Vertex P;
+	glm::vec3 P;
 	Direction normal;
 	bool Found = false;
 
