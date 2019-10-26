@@ -24,11 +24,8 @@ struct Triangle {
 		normal =  glm::normalize(glm::cross(edge1, edge2));
 	}
 
-	glm::vec3 getPointOnTriangle(float u, float v) {
-		return glm::vec3(p0.pos + (u * edge1 + v * edge2));
-	}
 
-	glm::vec3 getPointOnTriangle(float u, float v, float w) {
+	glm::vec3 getPointOnTriangle(float u, float v, float w) { //Used to get randomizedpoint on the lightsource
 		return glm::vec3((u * p0.pos + v * p1.pos + w * p2.pos));
 	}
 
@@ -36,7 +33,7 @@ struct Triangle {
 		return normal.Vec;
 	}
 
-	bool rayIntersection(Ray& arg, glm::vec3& p) {
+	bool rayIntersection(Ray& arg, glm::vec3& p) { //Function to calculate if the sent ray intersects with a triangle
 		glm::vec3 rayStart = arg.StartingPoint.pos;
 		glm::vec3 direction = glm::normalize(arg.direction.Vec);
 
@@ -66,7 +63,6 @@ struct Triangle {
 
 			Tout = T;
 			p = rayStart + direction * (float)T;
-			//IntersectionPoint.pos = rayStart + direction * (float)T;
 			return true;
 		}
 		else return false;
@@ -75,29 +71,32 @@ struct Triangle {
 	}
 
 	glm::vec3 getRandomPoint() {
-		double triangleArea = area();
+		double triangleArea = Get_Area();
 		double a = (rand() / RAND_MAX) / triangleArea;
 		double b = (rand() / RAND_MAX) / triangleArea;
 		if (a + b > 1.0) {
 			return getRandomPoint();
 		}
-		return GetBarycentric((float)a, (float)b);
+		return Get_barycentricCoords((float)a, (float)b);
 	}
 
-	double area() {
+	double Get_Area() {
 		return 0.5 * glm::length(glm::cross(edge1, edge2));
 	}
 
-	glm::vec3 GetBarycentric(double u, double v)
+	glm::vec3 Get_barycentricCoords(double u, double v)
 	{
-		glm::vec3 p;
-		p.x = (1 - u - v) * p0.pos.x + u * p1.pos.x + v * p2.pos.x;
-		p.y = (1 - u - v) * p0.pos.y + u * p1.pos.y + v * p2.pos.y;
-		p.z = (1 - u - v) * p0.pos.z + u * p1.pos.z + v * p2.pos.z;
-		if (p.x < EPSILON) p.x = 0;
-		if (p.y < EPSILON) p.y = 0;
-		if (p.z < EPSILON) p.z = 0;
-		return p;
+		glm::vec3 Point;
+
+		Point.x = (1 - u - v) * p0.pos.x + u * p1.pos.x + v * p2.pos.x;
+		Point.y = (1 - u - v) * p0.pos.y + u * p1.pos.y + v * p2.pos.y;
+		Point.z = (1 - u - v) * p0.pos.z + u * p1.pos.z + v * p2.pos.z;
+
+		if (Point.x < EPSILON) Point.x = 0;
+		if (Point.y < EPSILON) Point.y = 0;
+		if (Point.z < EPSILON) Point.z = 0;
+
+		return Point;
 	}
 
 	Triangle operator = (Triangle const &Tin) {
@@ -128,5 +127,4 @@ struct Triangle {
 	glm::vec3 edge1, edge2;
 	Direction normal;
 	double Tout;
-	Triangle* hit_triangle;
 };

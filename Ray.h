@@ -12,16 +12,10 @@ struct Ray {
 
 
 	Ray(){}
-	Ray( Vertex sP ,Direction Din) {
-		StartingPoint = sP;
-		direction = Din;
-		
-	}
 
 	Ray(glm::vec3 sP, Direction Din) {
 		StartingPoint.pos = sP;
 		direction = Din;
-
 	}
 
 	Ray(glm::vec3 sP, glm::vec3 Din) {
@@ -44,28 +38,24 @@ struct Ray {
 		double rand1 = dis(gen);
 		double rand2 = dis(gen);
 
-		double inclanation = (double)acos(sqrt(rand1));
-		double azzimut = (2.0 * (double)M_PI * rand2);
+		double inclanation_angle = (double)acos(sqrt(rand1));
+		double azzimut_angle = (2.0 * (double)M_PI * rand2);
 
-		glm::dvec3 _in = glm::vec3(direction.Vec.x, direction.Vec.y, direction.Vec.z);
-		glm::dvec3 _normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z));
-		glm::dvec3 _tangent = glm::normalize((glm::cross(_in, _normal)));
-		glm::dvec3 _out = _normal;
+		glm::dvec3 X = glm::vec3(direction.Vec.x, direction.Vec.y, direction.Vec.z);
+		glm::dvec3 Z = glm::normalize(glm::vec3(normal.x, normal.y, normal.z));
+		glm::dvec3 Y = glm::normalize((glm::cross(X, Z)));
+		glm::dvec3 _out = Z;
 
-
-
-		_out = glm::normalize(glm::rotate(_out, inclanation, _tangent));
-		_out = glm::normalize(glm::rotate(_out, azzimut, _normal));
-
+		_out = glm::normalize(glm::rotate(_out, inclanation_angle,Y));
+		_out = glm::normalize(glm::rotate(_out, azzimut_angle, Z));
 
 		Direction output = Direction(_out.x, _out.y, _out.z);
 
 		return Ray(point, output);
-
 	}
+
 	Direction direction;
 	Vertex StartingPoint;
 	Vertex EndPoint;
 	ColorDbl color;
-	int t = INT32_MAX;
 };

@@ -87,9 +87,9 @@ struct Camera {
 	ColorDbl CastRay(Ray r, Scene& scene, int depth,int Bounces) {
 
 	
-		int Max_Depth = 2;
-		std::list<IntersectionPointTri> intersections = scene.DetectTriangel(r);
-		std::list<IntersectionPointSphere> intersectionsS = scene.DetectSphere(r);
+		int Max_Depth = 3;
+		std::list<IntersectionPointTri> intersections = scene.Find_Triangle(r);
+		std::list<IntersectionPointSphere> intersectionsS = scene.Find_sphere(r);
 
 		ColorDbl s = ColorDbl();
 		double TriangleDist = 100;
@@ -108,23 +108,22 @@ struct Camera {
 
 		SphereDist = scene.sphere.t;
 
-		if (SphereDist < TriangleDist && SphereDist >Epsilon) {
-
+		if (SphereDist < TriangleDist && SphereDist >0.0000001) {
 			if (scene.sphere.material.Id == Lambertian) {
 				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
 				glm::vec3 Point = SphereHit;
 
-				Ray L = Ray(scene.light.getRandomPointOnLight(), Point);
+				Ray L = Ray(scene.light.GetRandomPoint(), Point);
 
 				Ray Out = L.GetReflectedRay(L, normal, Point);
 
-				ColorDbl Oren = scene.sphere.material.GetBRDF(Point, scene.sphere.material.Id, L.direction.Vec, Out.direction.Vec, normal);
+				ColorDbl Lambertian = scene.sphere.material.GetBRDF(Point, scene.sphere.material.Id, L.direction.Vec, Out.direction.Vec, normal);
 
 
-				double random = (double)rand() / (RAND_MAX);
-				double RussianRoulett = std::max(std::max(Oren.r, Oren.g), Oren.b);
+				double random = std::rand() / (double)(RAND_MAX);
+				double RussianRoulett = std::max(std::max(Lambertian.r, Lambertian.g), Lambertian.b);
 				
-				if (depth < Max_Depth || random > 1 - RussianRoulett) {
+				if (depth < Max_Depth && random < RussianRoulett) {
 
 					s += CastRay(Out, scene, depth + 1, Bounces);
 				}
@@ -133,7 +132,7 @@ struct Camera {
 
 				//		glm::vec3 DirectLight = SendShadowRays(scene, LightPoint, Point);
 
-				s = s + ColorDbl(1,1,1)/(float)M_PI  * std::max(0.0f, glm::dot(-L.direction.Vec, normal));
+				s = s + Lambertian * std::max(0.0f, glm::dot(-L.direction.Vec, normal));
 
 
 			}
@@ -142,12 +141,12 @@ struct Camera {
 				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
 				glm::vec3 Point = SphereHit + normal * 0.000001f;
 
-				Ray L = Ray(scene.light.getRandomPointOnLight(),Point);
+				Ray L = Ray(scene.light.GetRandomPoint(),Point);
 				
 				glm::vec3 Dirout = GetPerfectReflection(L, normal);
 				
 				Ray Out = Ray(Point, Dirout);
-				//return ColorDbl(1, 1, 1)*scene.light.GetEmission();
+			
 				return CastRay(Out, scene, depth, Bounces + 1)*0.8;
 			}
 
@@ -158,28 +157,32 @@ struct Camera {
 				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
 				glm::vec3 Point = SphereHit;
 
-				Ray L = Ray(scene.light.getRandomPointOnLight(), Point);
+				Ray L = Ray(scene.light.GetRandomPoint(), Point);
 
 				glm::vec3 Dirout = GetPerfectReflection(L, normal);
 
 				Ray Out = Ray(Point, Dirout);
 
 				// compute fresnel
-				float Fresnl;
-				Get_Fresnel(L.direction.Vec, normal, Fresnl);
+				float Fresnel;
+				Get_Fresnel(L.direction.Vec, normal, Fresnel);
 				bool outside = glm::dot(-L.direction.Vec,normal) < 0;
 			
 				glm::vec3 BIAS  =0.0001f * normal;
-				// compute refraction if it is not a case of total internal reflection
-				if (Fresnl < 1) {
+
+				if (Fresnel < 1) {
+
 					if (outside) {
 						Point = Point - BIAS;
 					}
 					else {
 						Point = Point + BIAS;
 					}
+
 					glm::vec3 refractionDirection = scene.sphere.material.GetBRDF(Point, 4, L.direction.Vec, Out.direction.Vec, normal); 
+
 					Ray out = Ray(Point,refractionDirection);
+
 					colorRefract = CastRay(out, scene, depth , Bounces+1);
 					
 				}
@@ -191,25 +194,28 @@ struct Camera {
 				else {
 					Point = Point - BIAS;
 				}
+
 				Ray out = Ray(Point, reflectionDirection);
+
 				colorReflect = CastRay(out, scene, depth , Bounces + 1);
-				s = colorReflect * Fresnl + colorRefract * (1- (double)Fresnl);
+
+				s = colorReflect * Fresnel + colorRefract * (1- (double)Fresnel);
 			}
 			else if (scene.sphere.material.Id == 3) {
 
 				glm::vec3 normal = scene.sphere.get_normal(SphereHit);
 				glm::vec3 Point = SphereHit;
 
-				Ray L = Ray(scene.light.getRandomPointOnLight(), Point);
+				Ray L = Ray(scene.light.GetRandomPoint(), Point);
 
 				Ray Out = L.GetReflectedRay(L, normal, Point);
 
 				ColorDbl Oren = scene.sphere.material.GetBRDF(Point, scene.sphere.material.Id, L.direction.Vec, Out.direction.Vec, normal);
 
-				double random = (double)rand() / (RAND_MAX);
+				double random = std::rand() / (double)(RAND_MAX);
 				double RussianRoulett = std::max(std::max(Oren.r, Oren.g), Oren.b);
 
-				if (depth < Max_Depth && random > 1 - RussianRoulett) {
+				if (depth < Max_Depth && random < RussianRoulett) {
 
 					s += CastRay(Out, scene, depth + 1, Bounces);
 				}
@@ -259,7 +265,7 @@ struct Camera {
 					
 					glm::vec3 normal = tri.normal.Vec;
 					glm::vec3 Point = tri.IntersectionPoint.pos + normal * 0.0001f;
-					glm::vec3 LightPoint = scene.light.getRandomPointOnLight();
+					glm::vec3 LightPoint = scene.light.GetRandomPoint();
 
 					Ray L = Ray(Vertex(LightPoint,0), Point);
 
@@ -269,10 +275,9 @@ struct Camera {
 					ColorDbl Lambertian = tri.material.GetBRDF(Point, 0, L.direction.Vec, out.direction.Vec, normal);
 
 					double random = std::rand() / (double)(RAND_MAX);
-					double rrTop = std::max(std::max(Lambertian.r, Lambertian.g), Lambertian.b);
-
-					s = tri.material.color;
-					if (depth < Max_Depth && random > 1 - rrTop) {
+					double RussianRoulett = std::max(std::max(Lambertian.r, Lambertian.g), Lambertian.b);
+					s = Lambertian;
+					if (depth < Max_Depth && random < RussianRoulett) {
 
 						s += CastRay(out, scene, depth + 1, Bounces);
 					}
@@ -290,7 +295,7 @@ struct Camera {
 				else if (tri.material.Id == 3) {
 					glm::vec3 normal = tri.normal.Vec;
 					glm::vec3 Point = tri.IntersectionPoint.pos + normal * 0.01f;
-					glm::vec3 LightPoint = scene.light.getRandomPointOnLight();
+					glm::vec3 LightPoint = scene.light.GetRandomPoint();
 					
 					Ray L = Ray(Vertex(LightPoint,0), Point);
 
@@ -305,7 +310,7 @@ struct Camera {
 					s = Oren;
 					if (depth < Max_Depth && random < RussianRoulett ) {
 
-						s += CastRay(out, scene, depth + 1, Bounces);
+						s = CastRay(out, scene, depth + 1, Bounces);
 					}
 
 					s = s / Max_Depth;
@@ -336,8 +341,8 @@ struct Camera {
 
 		Ray ShadowRay = Ray(Sp, lP);
 
-		std::list<IntersectionPointTri> intersections = scene.DetectTriangel(ShadowRay);
-		std::list<IntersectionPointSphere> intersectionsS = scene.DetectSphere(ShadowRay);
+		std::list<IntersectionPointTri> intersections = scene.Find_Triangle(ShadowRay);
+		std::list<IntersectionPointSphere> intersectionsS = scene.Find_sphere(ShadowRay);
 		
 		glm::vec3 SphereHit = scene.sphere.rayIntersection(ShadowRay, scene.sphere.t);
 	
@@ -360,31 +365,31 @@ struct Camera {
 
 	void Get_Fresnel(const glm::vec3& In, const glm::vec3& normal, float& Fresnel) {
 
-		float CosIn =glm::clamp(-1.0,1.0, (double)glm::dot(In, normal));
+		float cos1 =glm::clamp(-1.0,1.0, (double)glm::dot(In, normal));
 
 		float n1 = 1;
 		float n2 = 1.5;
 
-		if (CosIn > 0){
+		if (cos1 > 0){
 			std::swap(n1, n2);
 		}
 	
-		double sint = n1 / n2 * sqrt(std::max(0.0, 1.0 - (double)glm::pow(CosIn,2)));
+		double T_angle = n1 / n2 * sqrt(std::max(0.0, 1.0 - (double)glm::pow(cos1,2)));
 
-		if (sint >= 1) {
+		if (T_angle >= 1) {
 			
 			Fresnel = 1;
 		}
 		else {
-			float CosReflected = sqrt(std::max(0.0, 1 - glm::pow(sint,2)));
-			CosIn = fabsf(CosIn);
-			float Rs = ((n2 * CosIn) - (n1 * CosReflected)) / ((n2 * CosIn) + (n1 * CosReflected));
-			float Rp = ((n1 * CosIn) - (n2 * CosReflected)) / ((n1 * CosIn) + (n2 * CosReflected));
-			Fresnel = (Rs * Rs + Rp * Rp) / 2;
+			float cos2 = sqrt(std::max(0.0, 1 - glm::pow(T_angle,2)));
+			cos1 = fabsf(cos1);
+			float Rs = ((n2 * cos1) - (n1 * cos2)) / ((n2 * cos1) + (n1 * cos2));
+			float Rp = ((n1 * cos1) - (n2 * cos2)) / ((n1 * cos1) + (n2 * cos2));
+			Fresnel = (glm::pow(Rs, 2) +glm::pow(Rp,2)) / 2;
 		}
 	}
 
-	void render(Scene& scene) { //WHat tha fuck is this
+	void render(Scene& scene) {
 
 		std::random_device rd;
 		std::mt19937 gen(rd());
@@ -392,7 +397,7 @@ struct Camera {
 
 		Ray r;
 		ColorDbl Color;
-		int Samples =2;																				//SAMPLES!!!!!!!!!!!!!!!!!!!!!!!!!!
+		int Samples =32;
 		float p_y = 0, p_z = 0;
 		Vertex StartPoint = Eyes[CameraSwap];
 		glm::vec3 v;
@@ -423,7 +428,6 @@ struct Camera {
 
 	}
 
-	double Epsilon = 0.8;
 	Scene* scene;
 	const double Trunc = 255.99;
 	const int HEIGHT = 800;
@@ -439,6 +443,7 @@ struct Camera {
 	int Specular = 1;
 	int Lightsource = 2;
 	int Glass=4;
+
 	Vertex Eyes[2]{
 		Vertex(-2, 0, 0, 0),
 		Vertex(-1, 0, 0, 0)

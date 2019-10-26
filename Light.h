@@ -29,7 +29,7 @@ struct Light {
 
 	}
 
-	glm::vec3 getRandomPointOnLight() {
+	glm::vec3 GetRandomPoint() {
 		float random = glm::clamp((float)std::rand() / RAND_MAX, 0.01f, 0.99f);
 		float randomU = random / ((std::rand() % 8) + 2.0);
 		float randomV = random - randomU;
@@ -45,7 +45,6 @@ struct Light {
 
 	}
 	Material LightMat;
-	std::vector<Triangle> triangle;
 	Direction Ldirection;
 	Vertex p;
 	double L0;

@@ -94,10 +94,10 @@ struct Scene {
 			light = Lin;
 		}
 
-		std::list<IntersectionPointTri> DetectTriangel(Ray r)
+		std::list<IntersectionPointTri> Find_Triangle(Ray r)
 		{
-			std::list<IntersectionPointTri> intersections = {};
-			//Loop over all triangles in the vector
+			std::list<IntersectionPointTri> Triangle_intersections = {};
+			
 			double disttriangel = 1000000;
 			IntersectionPointTri ClosestTringle;
 
@@ -105,53 +105,45 @@ struct Scene {
 			{
 				glm::vec3 tempPoint;
 				IntersectionPointTri tempIntersect;
-				//Check if the ray intersect the tringle, if true add the triangle to the returning vector	
 				
 				if (triangle.rayIntersection(r, tempPoint))
 				{
-					//std::cout << tempPoint.x << std::endl;
 					tempIntersect.Tri = triangle;
 					tempIntersect.Tri.IntersectionPoint.pos = tempPoint + triangle.normal.Vec * 0.001f;
 					tempIntersect.point = tempPoint;
-				//	std::cout << tempIntersect.point.x << std::endl;
-					intersections.push_back(tempIntersect);
+				
+					Triangle_intersections.push_back(tempIntersect);
 					
 				}
 			}
-			//Check for closest triangle
+		
 			glm::vec3 Raystart = r.StartingPoint.pos;
-			//std::cout << Raystart.x << ", " << Raystart.y << ", " << Raystart.z << ", " << std::endl;
-			intersections.sort([&Raystart](const auto &a, const auto &b) {
+	
+			Triangle_intersections.sort([&Raystart](const auto &a, const auto &b) {
 				return glm::length(a.point - Raystart) > glm::length(b.point - Raystart);
 			});
-			return intersections;
+			return Triangle_intersections;
 		}
 
-		std::list<IntersectionPointSphere> DetectSphere(Ray r)
+		std::list<IntersectionPointSphere> Find_sphere(Ray r)
 		{
-			std::list<IntersectionPointSphere> intersections = {};
-			//Loop over all triangles in the vector
+			std::list<IntersectionPointSphere> Sphere_intersections = {};
+		
 				glm::vec3 intersection;
 				IntersectionPointSphere sph;
-				
-				//Check if the ray intersect the tringle, if true add the triangle to the returning vector		
+	
 				intersection = sphere.rayIntersection(r, sphere.t);
-
 					if (intersection != glm::vec3(0,0,0)) {
 						sph.sphere = sphere;
 						sph.P = intersection + sphere.get_normal(intersection)*0.0001f;
-						intersections.push_back(sph);
+						Sphere_intersections.push_back(sph);
 					}
-
-				return intersections;
+				return Sphere_intersections;
 		}
-
 
 		void addSphere(double radius, glm::vec3 position) {
 			 sphere = Sphere(radius, position);
-
 		}
-
 		int Lambertian = 0;
 		int OrenNayar = 3;
 		int Mirror = 1;

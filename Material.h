@@ -13,7 +13,7 @@ struct Material {
 
 	Material(ColorDbl ColorIn, glm::vec3 RhoIn, int type) {
 		color = ColorIn;
-		rhoOPi = glm::one_over_pi<float>() * RhoIn;
+		rhoOPi = RhoIn/(float)M_PI;
 		Id = type;
 	}
 	Material operator = (Material& Min) {
@@ -40,7 +40,7 @@ struct Material {
 		}
 		
 		if (this->Id == OrenNayar){
-			float thetaIn = (glm::dot(-In,normal));
+			float thetaIn = (glm::dot(In,normal));
 			float thetaOut = (glm::dot(Out,normal));
 			float theta = glm::acos(thetaOut);
 			float Sigma = 0.3f*0.3f;
@@ -51,17 +51,18 @@ struct Material {
 			float A = 1 - 0.5 * Sigma /( Sigma +0.33 );
 			float B = 0.45 * Sigma /( Sigma + 0.09 );
 
-			float phiIn_Out = glm::dot(-In,Out);
+			float phiIn_Out = glm::dot(In,Out);
 			return rhoOPi * (A + (B * std::max(0.0f, cos(phiIn_Out))) * glm::sin(alpha) * glm::tan(Beta));
 		}
 		if (this->Id == Glass) {
 
-			float cosi = glm::clamp(-1.0f, 1.0f, glm::dot(In, normal));
-			float n1 = 1, n2 = 1.5;
+			float Cos_In = glm::clamp(-1.0f, 1.0f, glm::dot(In, normal));
+			float n1 = 1;
+			float n2 = 1.5;
 			glm::vec3 n = normal;
 
-			if (cosi < 0) {
-				cosi = -cosi; 
+			if (Cos_In < 0) {
+				Cos_In = -Cos_In; 
 			}
 			else { 
 				std::swap(n1, n2);
@@ -69,11 +70,11 @@ struct Material {
 			}
 
 			float N = n1 / n2;
-			float k = 1 - N * N * (1 - cosi * cosi);
+			float k = 1 - N * N * (1 - Cos_In * Cos_In);
 			if (k < 0) {
 				return glm::vec3(0,0,0);
 			}
-			return N * In + (float)(N * cosi - sqrtf(k)) * n;
+			return N * In + (float)(N * Cos_In - sqrtf(k)) * n;
 		}
 
 
