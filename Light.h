@@ -29,7 +29,7 @@ struct Light {
 
 	}
 
-	Vertex getRandomPointOnLight() {
+	glm::vec3 getRandomPointOnLight() {
 		float random = glm::clamp((float)std::rand() / RAND_MAX, 0.01f, 0.99f);
 		float randomU = random / ((std::rand() % 8) + 2.0);
 		float randomV = random - randomU;

@@ -7,7 +7,6 @@
 #include "Material.h"
 #include "Ray.h"
 
-#include "Surface.h"
 
 struct Triangle {
 
@@ -25,12 +24,12 @@ struct Triangle {
 		normal =  glm::normalize(glm::cross(edge1, edge2));
 	}
 
-	Vertex getPointOnTriangle(float u, float v) {
-		return Vertex(p0.pos + (u * edge1 + v * edge2),0);
+	glm::vec3 getPointOnTriangle(float u, float v) {
+		return glm::vec3(p0.pos + (u * edge1 + v * edge2));
 	}
 
-	Vertex getPointOnTriangle(float u, float v, float w) {
-		return Vertex((u * p0.pos + v * p1.pos + w * p2.pos),0);
+	glm::vec3 getPointOnTriangle(float u, float v, float w) {
+		return glm::vec3((u * p0.pos + v * p1.pos + w * p2.pos));
 	}
 
 	const glm::vec3& getNormal() const {
@@ -38,38 +37,27 @@ struct Triangle {
 	}
 
 	bool rayIntersection(Ray& arg, glm::vec3& p) {
-		// positions of the ray
 		glm::vec3 rayStart = arg.StartingPoint.pos;
 		glm::vec3 direction = glm::normalize(arg.direction.Vec);
-
-		// edges of triangle
-		// calculate determinant
 
 		glm::vec3 edgeNormal = glm::cross(direction, edge2);
 		double determinant = glm::dot(edge1, edgeNormal);
 		if (fabs(determinant) < 0.0000001) return false;
-		// if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-		if (determinant > -EPSILON && determinant < EPSILON)
-			return false;
+	
+		if (determinant > -EPSILON && determinant < EPSILON) return false;
 
 		double inverted_determinant = 1.0 / determinant;
 
-		// calculate rayToVertex from first vertex to ray origin
 		glm::vec3 rayToVertex = rayStart - p0.pos;
-
-		// Calculate u parameter and test bound, if less than 0 or greater than 1,
-		// intersection lies outside of the triangle.
 
 		double U = glm::dot(rayToVertex, edgeNormal) * inverted_determinant;
 
-		if (U < 0.0 || U > 1.0)
-			return false;
+		if (U < 0.0 || U > 1.0) return false;
 
-		// Prepare to test v parameter
 		glm::vec3 Q = glm::cross(rayToVertex, edge1);
-		// Calculate V parameter and test bound
+
 		double V = glm::dot(direction, Q) * inverted_determinant;
-		// The intersection lies outside of the triangle
+
 		if (V < 0.0 || U + V  > 1.0)
 			return false;
 
@@ -133,7 +121,6 @@ struct Triangle {
 		return os;
 	}
 
-	Surface surface;
 	Material material;
 	const double EPSILON = 0.000001;
 	Vertex p0,p1,p2;

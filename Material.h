@@ -3,7 +3,10 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <iomanip>
 #include "glm/gtx/vector_angle.hpp"
+#include <random>
+
 struct Material {
 
 	Material(){}
@@ -36,49 +39,45 @@ struct Material {
 			return rhoOPi;
 		}
 		
-
 		if (this->Id == OrenNayar){
-			float thetaIn = (glm::dot(In,normal));
+			float thetaIn = (glm::dot(-In,normal));
 			float thetaOut = (glm::dot(Out,normal));
-			float lambda = 0.3f;
-			float Beta = std::min(thetaIn,thetaOut);
-			float alpha = std::max(thetaIn, thetaOut);
-			float A = 1 - 0.5*((std::pow(lambda,2)) /(std::pow(lambda,2)+0.33));
-			float B = 0.45*((std::pow(lambda, 2)) / (std::pow(lambda, 2) + 0.09));
-			float phiIn_Out = glm::dot(In,Out);
+			float theta = glm::acos(thetaOut);
+			float Sigma = 0.3f*0.3f;
+			
+			float Beta = std::min(theta, thetaIn);
+			float alpha = std::max(theta, thetaIn);
 
-			//std::cout << thetaIn <<", "<< thetaOut << std::endl;
-			return rhoOPi * std::max(0.0f, glm::dot(-In, normal))* (float)((A + (B * std::max(0.0f, cos(phiIn_Out))) * sin(alpha) * tan(Beta)));
+			float A = 1 - 0.5 * Sigma /( Sigma +0.33 );
+			float B = 0.45 * Sigma /( Sigma + 0.09 );
+
+			float phiIn_Out = glm::dot(-In,Out);
+			return rhoOPi * (A + (B * std::max(0.0f, cos(phiIn_Out))) * glm::sin(alpha) * glm::tan(Beta));
 		}
 		if (this->Id == Glass) {
 
-			float n1 = 1.0f;
-			float n2 = 1.5f;
+			float cosi = glm::clamp(-1.0f, 1.0f, glm::dot(In, normal));
+			float n1 = 1, n2 = 1.5;
+			glm::vec3 n = normal;
 
-			float c1 = glm::dot(In, normal);
-	
-			if (c1 < 0) {
-				c1 = -c1;
+			if (cosi < 0) {
+				cosi = -cosi; 
 			}
-
-			else {
-				normal = -normal;
+			else { 
 				std::swap(n1, n2);
+				n = -normal; 
 			}
 
 			float N = n1 / n2;
-			float c2 = sqrt(1 - pow(N, 2) * pow(sin(glm::angle(In, normal)), 2));
-			if (c2 < 0) {
-				return glm::vec3(0, 0, 0);
+			float k = 1 - N * N * (1 - cosi * cosi);
+			if (k < 0) {
+				return glm::vec3(0,0,0);
 			}
-			glm::vec3 T = N * (In + c1 * normal) - N * c2;
-
-			return T;
-
+			return N * In + (float)(N * cosi - sqrtf(k)) * n;
 		}
 
 
-		return glm::vec3(0.0);
+		return glm::vec3(0.0,0.0,0.0);
 	}
 
 	ColorDbl color;

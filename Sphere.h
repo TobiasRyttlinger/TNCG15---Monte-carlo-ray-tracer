@@ -12,29 +12,27 @@ struct Sphere {
 	Sphere(double rIn, glm::vec3 centerP) {
 		r = rIn;
 		center = centerP;
-		material = Material(ColorDbl(1, 0, 0), glm::vec3(1, 0, 0), 1);
+		material = Material(ColorDbl(1, 0, 0), glm::vec3(1, 0, 0),1);
 	}
 
 	glm::vec3 rayIntersection(Ray arg, float& t) {
 
-
 		glm::vec3 rayDirection = glm::normalize(glm::vec3(arg.EndPoint - arg.StartingPoint));
-		t = FLT_MAX;
-
+		t = 10000000;
 
 		glm::vec3 L = center - arg.StartingPoint.pos;
 
 		float tca = glm::dot(L, rayDirection);
 
-		if (tca < FLT_EPSILON)
-			return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
+		if (tca < 0.000001)
+			return glm::vec3(0.0f, 0.0f, 0.0f);
 
 		float r2 = glm::pow(r, 2);
 
 		float d2 = glm::dot(L, L) - glm::pow(tca, 2);
 
 		if (d2 > r2)
-			return glm::vec4(0.0f, 0.0f, 0.0f, -1.0f);
+			return glm::vec3(0.0f, 0.0f, 0.0f);
 
 		float thc = glm::sqrt(r2 - d2);
 
@@ -44,9 +42,9 @@ struct Sphere {
 		if (t0 > t1)
 			std::swap(t0, t1);
 
-		if (t0 < FLT_EPSILON) {
+		if (t0 < 0.000001) {
 			t0 = t1;
-			if (t0 < FLT_EPSILON)
+			if (t0 < 0.000001)
 				return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
